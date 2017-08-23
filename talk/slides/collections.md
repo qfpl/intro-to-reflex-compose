@@ -117,9 +117,94 @@ todoItem
   -> m (Event t ())
 
 list 
-  ::         Dynamic t (Map k v     )
-  ->   (Dynamic t v -> m a   ) 
-  -> m (Dynamic t (Map k a         ))
+  ::    Dynamic t (Map k   v                        )
+  ->   (Dynamic t          v    ->   m            a ) 
+  -> m (Dynamic t (Map k                          a))
+```
+
+##
+
+```haskell
+dMap 
+  :: Dynamic t (Map Int Text)
+
+todoItem 
+  :: MonadWidget t m
+  => Dynamic t Text
+  -> m (Event t ())
+
+list dMap
+  ::    Dynamic t (Map k   v                        )
+  ->   (Dynamic t          v    ->   m            a ) 
+  -> m (Dynamic t (Map k                          a))
+```
+
+##
+
+```haskell
+dMap 
+  :: Dynamic t (Map Int Text)
+
+todoItem 
+  :: MonadWidget t m
+  => Dynamic t Text
+  -> m (Event t ())
+
+list dMap
+  ::    Dynamic t (Map Int v                        )
+  ->   (Dynamic t          v    ->   m            a ) 
+  -> m (Dynamic t (Map k                          a))
+```
+
+##
+
+```haskell
+dMap 
+  :: Dynamic t (Map Int Text)
+
+todoItem 
+  :: MonadWidget t m
+  => Dynamic t Text
+  -> m (Event t ())
+
+list dMap
+  ::    Dynamic t (Map Int v                        )
+  ->   (Dynamic t          v    ->   m            a ) 
+  -> m (Dynamic t (Map Int                        a))
+```
+
+##
+
+```haskell
+dMap 
+  :: Dynamic t (Map Int Text)
+
+todoItem 
+  :: MonadWidget t m
+  => Dynamic t Text
+  -> m (Event t ())
+
+list dMap
+  ::    Dynamic t (Map Int Text                     )
+  ->   (Dynamic t          v    ->   m            a ) 
+  -> m (Dynamic t (Map Int                        a))
+```
+
+##
+
+```haskell
+dMap 
+  :: Dynamic t (Map Int Text)
+
+todoItem 
+  :: MonadWidget t m
+  => Dynamic t Text
+  -> m (Event t ())
+
+list dMap
+  ::    Dynamic t (Map Int Text                     )
+  ->   (Dynamic t          Text ->   m            a ) 
+  -> m (Dynamic t (Map Int                        a))
 ```
 
 ##
@@ -135,8 +220,8 @@ todoItem
 
 list dMap 
   ::
-       (Dynamic t Text -> m a) 
-  -> m (Dynamic t (Map Int a       ))
+       (Dynamic t          Text ->   m            a ) 
+  -> m (Dynamic t (Map Int                        a))
 ```
 
 ##
@@ -150,10 +235,61 @@ todoItem
   => Dynamic t Text
   -> m (Event t ())
 
-list dMap todoItem 
+list dMap todoItem
+  ::
+       (Dynamic t          Text ->   m            a ) 
+  -> m (Dynamic t (Map Int                        a))
+```
+
+##
+
+```haskell
+dMap 
+  :: Dynamic t (Map Int Text)
+
+todoItem
+  :: MonadWidget t m
+  => Dynamic t Text
+  -> m (Event t ())
+
+list dMap todoItem
+  ::
+       (Dynamic t          Text ->   m (Event t ()) ) 
+  -> m (Dynamic t (Map Int                        a))
+```
+
+##
+
+```haskell
+dMap 
+  :: Dynamic t (Map Int Text)
+
+todoItem
+  :: MonadWidget t m
+  => Dynamic t Text
+  -> m (Event t ())
+
+list dMap todoItem
+  ::
+       (Dynamic t          Text ->   m (Event t ()) ) 
+  -> m (Dynamic t (Map Int             (Event t ())))
+```
+
+##
+
+```haskell
+dMap 
+  :: Dynamic t (Map Int Text)
+
+todoItem
+  :: MonadWidget t m
+  => Dynamic t Text
+  -> m (Event t ())
+
+list dMap todoItem
   ::
 
-     m (Dynamic t (Map Int (Event t ())))
+     m (Dynamic t (Map Int             (Event t ())))
 ```
 
 ##
