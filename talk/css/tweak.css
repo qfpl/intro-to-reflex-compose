@@ -1,0 +1,61 @@
+.reveal h1,
+.reveal h2,
+.reveal h3,
+.reveal h4,
+.reveal h5,
+.reveal h6 {
+  text-transform: none;
+}
+
+.reveal pre code {
+  max-height: 600px;
+}
+
+.removed-outer div {
+    color: red;
+}
+
+.completed-outer div {
+    text-decoration: line-through;
+}
+
+.removed {
+  color: red;
+}
+
+.completed {
+  text-decoration: line-through;
+}
+
+.demo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.todo-item {
+  position: relative;
+	font-size: 24px;
+  display: flex;
+  flex-wrap: nowrap;
+}
+
+.todo-item input[type=checkbox] {
+  margin-right: 10px;
+}
+
+.todo-item button {
+  margin-left: 10px;
+}
+
+.add-item-wrapper {
+  position: relative;
+	font-size: 24px;
+  display: flex;
+  flex-wrap: nowrap;
+  flex-direction: column;
+}
+
+.add-item-wrapper div {
+  display: flex;
+}

@@ -1,0 +1,21 @@
+.fizzbuzz-pair-left pre {
+    margin-left: 10px;
+    text-align: center;
+    width: 8em;
+}
+
+.fizzbuzz-pair-right pre {
+    margin-right: 10px;
+    text-align: center;
+    width: 8em;
+}
+
+.fizzbuzz-pair-right input {
+    margin-right: 10px;
+    text-align: center;
+    width: 8em;
+}
+
+table, th, tr, td {
+    border: none;
+}
