@@ -69,8 +69,7 @@ todoItem :: MonadWidget t m
          -> m (Event t ())
 todoItem placeholder =
   el "div" $ do
-    el "div" $ 
-      text placeholder
+    el "div" $ text placeholder
     button "Remove"
 ```
 
@@ -87,11 +86,21 @@ dynText :: (PostBuild t m, DomBuilder t m)
 ##
 
 ```haskell
+todoItem :: MonadWidget t m 
+         => Dynamic t Text 
+         -> m (Event t ())
+todoItem dText =
+  el "div" $ do
+    el "div" $ dynText dText
+    button "Remove"
+```
+
+##
+
+```haskell
 el "div" $ mdo
 
-
-
-  eRemove <- todoItem "TODO"
+  eRemove <- todoItem $ dText
 
 
 
@@ -104,12 +113,10 @@ el "div" $ mdo
 ```haskell
 el "div" $ mdo
 
-
-
-  eRemove <- todoItem "TODO"
+  eRemove <- todoItem $ dText
 
   dLabel <- holdDyn "" $ 
-    "Removed:" <$ eRemove
+    " (Removed)" <$ eRemove
 
   pure ()
 ```
@@ -118,13 +125,11 @@ el "div" $ mdo
 
 ```haskell
 el "div" $ mdo
-  el "div" $ 
-    dynText dLabel
 
-  eRemove <- todoItem "TODO"
+  eRemove <- todoItem $ dText <> dLabel
 
   dLabel <- holdDyn "" $ 
-    "Removed:" <$ eRemove
+    " (Removed)" <$ eRemove
 
   pure ()
 ```
@@ -133,13 +138,11 @@ el "div" $ mdo
 
 ```haskell
 el "div" $ mdo
-  el "div" $ 
-    dynText dLabel
 
-  eRemove <- todoItem "TODO"
+  eRemove <- todoItem $ dText <> dLabel
 
   dLabel <- holdDyn "" $ 
-    "Removed:" <$ eRemove
+    " (Removed)" <$ eRemove
 
   pure ()
 ```
@@ -190,13 +193,13 @@ elDynClass :: (DomBuilder t m, PostBuild t m)
 
 ```haskell
 todoItem :: MonadWidget t m 
-         => Text 
+         => Dynamic t Text 
          -> m (Event t ())
-todoItem placeholder =
+todoItem dText =
   el      "div"             $  do
 
     el         "div"              $
-      text placeholder
+      dynText dText
 
     eRemove <- button "Remove"
 
@@ -210,13 +213,13 @@ todoItem placeholder =
 
 ```haskell
 todoItem :: MonadWidget t m 
-         => Text 
+         => Dynamic t Text 
          -> m (Event t ())
-todoItem placeholder =
+todoItem dText =
   elClass "div"             $  do
 
     el         "div"              $
-      text placeholder
+      dynText dText
 
     eRemove <- button "Remove"
 
@@ -230,13 +233,13 @@ todoItem placeholder =
 
 ```haskell
 todoItem :: MonadWidget t m 
-         => Text 
+         => Dynamic t Text 
          -> m (Event t ())
-todoItem placeholder =
+todoItem dText =
   elClass "div" "todo-item" $  do
 
     el         "div"              $
-      text placeholder
+      dynText dText
 
     eRemove <- button "Remove"
 
@@ -250,13 +253,13 @@ todoItem placeholder =
 
 ```haskell
 todoItem :: MonadWidget t m 
-         => Text 
+         => Dynamic t Text 
          -> m (Event t ())
-todoItem placeholder =
+todoItem dText =
   elClass "div" "todo-item" $  do
 
     el         "div"              $
-      text placeholder
+      dynText dText
 
     eRemove <- button "Remove"
 
@@ -270,13 +273,13 @@ todoItem placeholder =
 
 ```haskell
 todoItem :: MonadWidget t m 
-         => Text 
+         => Dynamic t Text 
          -> m (Event t ())
-todoItem placeholder =
+todoItem dText =
   elClass "div" "todo-item" $ mdo
 
     el         "div"              $
-      text placeholder
+      dynText dText
 
     eRemove <- button "Remove"
 
@@ -290,13 +293,13 @@ todoItem placeholder =
 
 ```haskell
 todoItem :: MonadWidget t m 
-         => Text 
+         => Dynamic t Text 
          -> m (Event t ())
-todoItem placeholder =
+todoItem dText =
   elClass "div" "todo-item" $ mdo
 
     elDynClass "div" dRemoveClass $
-      text placeholder
+      dynText dText
 
     eRemove <- button "Remove"
 
@@ -310,13 +313,13 @@ todoItem placeholder =
 
 ```haskell
 todoItem :: MonadWidget t m 
-         => Text 
+         => Dynamic t Text 
          -> m (Event t ())
-todoItem placeholder =
+todoItem dText =
   elClass "div" "todo-item" $ mdo
 
     elDynClass "div" dRemoveClass $
-      text placeholder
+      dynText dText
 
     eRemove <- button "Remove"
 
@@ -364,32 +367,13 @@ data Checkbox t =
 ##
 
 ```haskell
-data TodoItemConfig =
-  TodoItemConfig {
-    _todoItemConfig_dText :: Dynamic t Text
-  }
-
-makeLenses ''TodoItemConfig
-
-data TodoItem t =
-  TodoItem {
-    _todoItem_dComplete :: Dynamic t Bool
-  , _todoItem_eRemove   :: Event   t ()
-  }
-
-makeLenses ''TodoItem
-```
-
-##
-
-```haskell
 todoItem :: MonadWidget t m 
-         => TodoItemConfig 
-         -> m (TodoItem t)
-todoItem (TodoItemConfig dText) =
+         => Dynamic t Text 
+         -> m (              Event t ())
+todoItem dText =
   elClass "div" "todo-item" $ mdo
   
-  
+
   
 
     elDynClass "div" dRemoveClass $
@@ -399,21 +383,20 @@ todoItem (TodoItemConfig dText) =
     dRemoveClass <- holdDyn "" $ 
       "removed" <$ eRemove
 
-    pure $ 
-      TodoItem           eRemove
+    pure             eRemove
 ```
 
 ##
 
 ```haskell
 todoItem :: MonadWidget t m 
-         => TodoItemConfig 
-         -> m (TodoItem t)
-todoItem (TodoItemConfig dText) =
+         => Dynamic t Text 
+         -> m (              Event t ())
+todoItem dText =
   elClass "div" "todo-item" $ mdo
     cb <- checkbox False def
   
-  
+
 
     elDynClass "div" dRemoveClass $
       dynText dText
@@ -422,21 +405,20 @@ todoItem (TodoItemConfig dText) =
     dRemoveClass <- holdDyn "" $ 
       "removed" <$ eRemove
 
-    pure $ 
-      TodoItem           eRemove
+    pure             eRemove
 ```
 
 ##
 
 ```haskell
 todoItem :: MonadWidget t m 
-         => TodoItemConfig 
-         -> m (TodoItem t)
-todoItem (TodoItemConfig dText) =
+         => Dynamic t Text 
+         -> m (              Event t ())
+todoItem dText =
   elClass "div" "todo-item" $ mdo
     cb <- checkbox False def
     let
-      dComplete = cb ^. checkbox_value
+      eComplete = cb ^. checkbox_change
 
     elDynClass "div" dRemoveClass $
       dynText dText
@@ -445,21 +427,20 @@ todoItem (TodoItemConfig dText) =
     dRemoveClass <- holdDyn "" $ 
       "removed" <$ eRemove
 
-    pure $ 
-      TodoItem           eRemove
+    pure             eRemove
 ```
 
 ##
 
 ```haskell
 todoItem :: MonadWidget t m 
-         => TodoItemConfig 
-         -> m (TodoItem t)
-todoItem (TodoItemConfig dText) =
+         => Dynamic t Text 
+         -> m (Event t Bool, Event t ())
+todoItem dText =
   elClass "div" "todo-item" $ mdo
     cb <- checkbox False def
     let
-      dComplete = cb ^. checkbox_value
+      eComplete = cb ^. checkbox_change
 
     elDynClass "div" dRemoveClass $
       dynText dText
@@ -468,21 +449,20 @@ todoItem (TodoItemConfig dText) =
     dRemoveClass <- holdDyn "" $ 
       "removed" <$ eRemove
 
-    pure $ 
-      TodoItem dComplete eRemove
+    pure             eRemove
 ```
 
 ##
 
 ```haskell
 todoItem :: MonadWidget t m 
-         => TodoItemConfig 
-         -> m (TodoItem t)
-todoItem (TodoItemConfig dText) =
+         => Dynamic t Text 
+         -> m (Event t Bool, Event t ())
+todoItem dText =
   elClass "div" "todo-item" $ mdo
     cb <- checkbox False def
     let
-      dComplete = cb ^. checkbox_value
+      eComplete = cb ^. checkbox_change
 
     elDynClass "div" dRemoveClass $
       dynText dText
@@ -491,8 +471,29 @@ todoItem (TodoItemConfig dText) =
     dRemoveClass <- holdDyn "" $ 
       "removed" <$ eRemove
 
-    pure $ 
-      TodoItem dComplete eRemove
+    pure (eComplete, eRemove)
+```
+
+##
+
+```haskell
+todoItem :: MonadWidget t m 
+         => Dynamic t Text 
+         -> m (Event t Bool, Event t ())
+todoItem dText =
+  elClass "div" "todo-item" $ mdo
+    cb <- checkbox False def
+    let
+      eComplete = cb ^. checkbox_change
+
+    elDynClass "div" dRemoveClass $
+      dynText dText
+
+    eRemove <- button "Remove"
+    dRemoveClass <- holdDyn "" $ 
+      "removed" <$ eRemove
+
+    pure (eComplete, eRemove)
 ```
 
 <div class="demo" id="examples-dom-todoitem-4"></div>
@@ -502,6 +503,25 @@ todoItem (TodoItemConfig dText) =
 ```haskell
   ...
     let
+      eComplete = cb ^. checkbox_change
+
+
+
+
+
+
+
+    elDynClass "div"                    dRemoveClass  $ 
+      dynText dText
+  ...
+```
+
+##
+
+```haskell
+  ...
+    let
+      eComplete = cb ^. checkbox_change
       dComplete = cb ^. checkbox_value
 
 
@@ -519,6 +539,7 @@ todoItem (TodoItemConfig dText) =
 ```haskell
   ...
     let
+      eComplete = cb ^. checkbox_change
       dComplete = cb ^. checkbox_value
 
       mkCompleteClass False = ""
@@ -536,6 +557,7 @@ todoItem (TodoItemConfig dText) =
 ```haskell
   ...
     let
+      eComplete = cb ^. checkbox_change
       dComplete = cb ^. checkbox_value
 
       mkCompleteClass False = ""
@@ -553,6 +575,7 @@ todoItem (TodoItemConfig dText) =
 ```haskell
   ...
     let
+      eComplete = cb ^. checkbox_change
       dComplete = cb ^. checkbox_value
 
       mkCompleteClass False = ""
@@ -570,6 +593,7 @@ todoItem (TodoItemConfig dText) =
 ```haskell
   ...
     let
+      eComplete = cb ^. checkbox_change
       dComplete = cb ^. checkbox_value
 
       mkCompleteClass False = ""
@@ -583,6 +607,41 @@ todoItem (TodoItemConfig dText) =
 ```
 
 <div class="demo" id="examples-dom-todoitem-5"></div>
+
+##
+
+```haskell
+clearComplete :: MonadWidget t m 
+              => Dynamic t Bool 
+              -> m (Event t ())
+clearComplete dAnyComplete =
+  let
+    mkClass False = "hide"
+    mkClass True  = ""
+    dClass = mkClass <$> dAnyComplete
+  in
+    elDynClass "div" dClass $
+      button "Clear complete"
+```
+
+<div class="demo" id="examples-dom-clear-complete"></div>
+
+##
+
+```haskell
+markAllComplete :: MonadWidget t m 
+                => Dynamic t Bool 
+                -> m (Event t Bool)
+markAllComplete dAllComplete = do
+  cb <- checkbox False $
+    def & checkboxConfig_setValue .~ updated dAllComplete
+
+  text "Mark all as complete"
+
+  pure $ cb ^. checkbox_change
+```
+
+<div class="demo" id="examples-dom-mark-all-complete"></div>
 
 ##
 
@@ -628,9 +687,8 @@ data TextInput t =
 ## 
 
 ```haskell
-addItem ::
-  MonadWidget t m =>
-  m (Event t Text)
+addItem :: MonadWidget t m 
+        => m (Event t Text)
 addItem =  do
   ti <- textInput $
     def                                                      
@@ -649,9 +707,8 @@ addItem =  do
 ## 
 
 ```haskell
-addItem ::
-  MonadWidget t m =>
-  m (Event t Text)
+addItem :: MonadWidget t m 
+        => m (Event t Text)
 addItem =  do
   ti <- textInput $
     def & textInputConfig_attributes .~
@@ -669,10 +726,10 @@ addItem =  do
 
 ## 
 
+
 ```haskell
-addItem ::
-  MonadWidget t m =>
-  m (Event t Text)
+addItem :: MonadWidget t m 
+        => m (Event t Text)
 addItem =  do
   ti <- textInput $
     def & textInputConfig_attributes .~
@@ -681,7 +738,7 @@ addItem =  do
 
 
   let
-    bValue = current $ ti ^. textInput_value
+    bValue = current (ti ^. textInput_value)
 
 
 
@@ -691,9 +748,8 @@ addItem =  do
 ## 
 
 ```haskell
-addItem ::
-  MonadWidget t m =>
-  m (Event t Text)
+addItem :: MonadWidget t m 
+        => m (Event t Text)
 addItem =  do
   ti <- textInput $
     def & textInputConfig_attributes .~
@@ -702,7 +758,7 @@ addItem =  do
 
 
   let
-    bValue = current $ ti ^. textInput_value
+    bValue = current (ti ^. textInput_value)
     eAtEnter = bValue <@ getKey ti Enter
 
 
@@ -713,9 +769,8 @@ addItem =  do
 ## 
 
 ```haskell
-addItem ::
-  MonadWidget t m =>
-  m (Event t Text)
+addItem :: MonadWidget t m 
+        => m (Event t Text)
 addItem =  do
   ti <- textInput $
     def & textInputConfig_attributes .~
@@ -724,7 +779,7 @@ addItem =  do
 
 
   let
-    bValue = current $ ti ^. textInput_value
+    bValue = current (ti ^. textInput_value)
     eAtEnter = bValue <@ getKey ti Enter
     eDone = ffilter (not . Text.null) eAtEnter
 
@@ -734,9 +789,8 @@ addItem =  do
 ## 
 
 ```haskell
-addItem ::
-  MonadWidget t m =>
-  m (Event t Text)
+addItem :: MonadWidget t m 
+        => m (Event t Text)
 addItem =  do
   ti <- textInput $
     def & textInputConfig_attributes .~
@@ -745,7 +799,7 @@ addItem =  do
 
 
   let
-    bValue = current $ ti ^. textInput_value
+    bValue = current (ti ^. textInput_value)
     eAtEnter = bValue <@ getKey ti Enter
     eDone = ffilter (not . Text.null) eAtEnter
 
@@ -755,9 +809,8 @@ addItem =  do
 ## 
 
 ```haskell
-addItem ::
-  MonadWidget t m =>
-  m (Event t Text)
+addItem :: MonadWidget t m 
+        => m (Event t Text)
 addItem =  do
   ti <- textInput $
     def & textInputConfig_attributes .~
@@ -766,7 +819,7 @@ addItem =  do
             ("" <$ eDone)
 
   let
-    bValue = current $ ti ^. textInput_value
+    bValue = current (ti ^. textInput_value)
     eAtEnter = bValue <@ getKey ti Enter
     eDone = ffilter (not . Text.null) eAtEnter
 
@@ -776,9 +829,8 @@ addItem =  do
 ## 
 
 ```haskell
-addItem ::
-  MonadWidget t m =>
-  m (Event t Text)
+addItem :: MonadWidget t m 
+        => m (Event t Text)
 addItem = mdo
   ti <- textInput $
     def & textInputConfig_attributes .~
@@ -787,7 +839,7 @@ addItem = mdo
             ("" <$ eDone)
 
   let
-    bValue = current $ ti ^. textInput_value
+    bValue = current (ti ^. textInput_value)
     eAtEnter = bValue <@ getKey ti Enter
     eDone = ffilter (not . Text.null) eAtEnter
 
@@ -797,9 +849,8 @@ addItem = mdo
 ## 
 
 ```haskell
-addItem ::
-  MonadWidget t m =>
-  m (Event t Text)
+addItem :: MonadWidget t m 
+        => m (Event t Text)
 addItem = mdo
   ti <- textInput $
     def & textInputConfig_attributes .~
@@ -808,7 +859,7 @@ addItem = mdo
             ("" <$ eDone)
 
   let
-    bValue = current $ ti ^. textInput_value
+    bValue = current (ti ^. textInput_value)
     eAtEnter = bValue <@ getKey ti Enter
     eDone = ffilter (not . Text.null) eAtEnter
 

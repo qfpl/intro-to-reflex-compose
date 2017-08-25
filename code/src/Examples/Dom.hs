@@ -43,30 +43,36 @@ todoItemExample1 = do
   _ <- todoItem0 "TODO"
   pure ()
 
+todoItem1 ::
+  MonadWidget t m =>
+  Dynamic t Text ->
+  m (Event t ())
+todoItem1 dText =
+  el "div" $ do
+    el "div" $ dynText dText
+    button "Remove"
+
 todoItemExample2 ::
   MonadWidget t m =>
   m ()
 todoItemExample2 = el "div" $ mdo
-  el "div" $
-    dynText dLabel
-
   eRemove <- el "div" $
-    todoItem0 "TODO"
+    todoItem1 $ pure "TODO" <> dLabel
 
   dLabel <- holdDyn "" $
-    "Removed:" <$ eRemove
+    " (Removed)" <$ eRemove
 
   pure ()
 
 todoItem3 ::
   MonadWidget t m =>
-  Text ->
+  Dynamic t Text ->
   m (Event t ())
-todoItem3 placeholder =
+todoItem3 dText =
   elClass "div" "todo-item" $ mdo
 
     elDynClass "div" dClass $
-      text placeholder
+      dynText dText
 
     eRemove <- button "Remove"
 
@@ -79,7 +85,7 @@ todoItemExample3 ::
   MonadWidget t m =>
   m ()
 todoItemExample3 = do
-  _ <- todoItem3 "TODO"
+  _ <- todoItem3 $ pure "TODO"
   pure ()
 
 data TodoItemConfig =
@@ -212,6 +218,70 @@ todoItemExample6 = elClass "div" "add-item-wrapper" $ do
 
   pure ()
 
+clearComplete ::
+  MonadWidget t m =>
+  Dynamic t Bool ->
+  m (Event t ())
+clearComplete dAnyComplete =
+  let
+    mkClass False = "hide"
+    mkClass True  = ""
+    dClass = mkClass <$> dAnyComplete
+  in
+    elDynClass "div" dClass $
+      button "Clear complete"
+
+clearCompleteExample ::
+  MonadWidget t m =>
+  m ()
+clearCompleteExample = elClass "div" "add-item-wrapper" $ do
+  cb1 <- el "div" $ checkbox False def
+
+  cb2 <- el "div" $ checkbox False def
+
+  let
+    dComplete1 = cb1 ^. checkbox_value
+    dComplete2 = cb2 ^. checkbox_value
+    dAnyComplete = (||) <$> dComplete1 <*> dComplete2
+
+  eClearComplete <- el "div" $ clearComplete dAnyComplete
+
+  dText <- holdDyn "" $ "Cleared" <$ eClearComplete
+  el "div" $ dynText dText
+
+  pure ()
+
+markAllComplete ::
+  MonadWidget t m =>
+  Dynamic t Bool ->
+  m (Event t Bool)
+markAllComplete dAllComplete = do
+  cb <- checkbox False $
+    def & checkboxConfig_setValue .~ updated dAllComplete
+
+  text "Mark all as complete"
+
+  pure $ cb ^. checkbox_change
+
+markAllCompleteExample ::
+  MonadWidget t m =>
+  m ()
+markAllCompleteExample = elClass "div" "add-item-wrapper" $ mdo
+  cb1 <- el "div" . checkbox False $
+    def & checkboxConfig_setValue .~ eMarkAllComplete
+
+  cb2 <- el "div" . checkbox False $
+    def & checkboxConfig_setValue .~ eMarkAllComplete
+
+  let
+    dComplete1 = cb1 ^. checkbox_value
+    dComplete2 = cb2 ^. checkbox_value
+    dAllComplete = (&&) <$> dComplete1 <*> dComplete2
+
+  eMarkAllComplete <- el "div" $ markAllComplete dAllComplete
+
+  pure ()
+
 attachDomExamples ::
   MonadJSM m =>
   m ()
@@ -230,3 +300,7 @@ attachDomExamples = do
     todoItemExample5
   attachId_ "examples-dom-todoitem-6"
     todoItemExample6
+  attachId_ "examples-dom-clear-complete"
+    clearCompleteExample
+  attachId_ "examples-dom-mark-all-complete"
+    markAllCompleteExample
