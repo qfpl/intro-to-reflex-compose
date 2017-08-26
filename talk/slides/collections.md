@@ -4,8 +4,8 @@
 ##
 
 ```haskell
-addItemWidget :: MonadWidget t m 
-              => m (Event t Text)
+add :: MonadWidget t m 
+    => m (Event t Text)
 ```
 
 ##
@@ -13,28 +13,14 @@ addItemWidget :: MonadWidget t m
 ```haskell
   ...
 
-  -- eAdd     :: Event t Text
-  eAdd <- addItemWidget
+  -- eAddText :: Event t Text
+  eAddText <- add
 
 
 
 
 
 
-
-
-  ...
-```
-##
-
-```haskell
-  ...
-
-  -- eAdd     :: Event t Text
-  eAdd <- addItemWidget
-
-  -- dNextKey :: Dynamic t Int
-  dNextKey <- count eAdd
 
 
 
@@ -48,15 +34,60 @@ addItemWidget :: MonadWidget t m
 ```haskell
   ...
 
-  -- eAdd     :: Event t Text
-  eAdd <- addItemWidget
+  -- eAddText :: Event t Text
+  eAddText <- add
+  let 
+    -- eAdd :: Event t TodoItem
+    eAdd = TodoItem False <$> eAddText
 
-  -- dNextKey :: Dynamic t Int
-  dNextKey <- count eAdd
 
-  -- dMap     :: Dynamic t (Map Int Text)
+
+
+
+
+
+
+  ...
+```
+
+##
+
+```haskell
+  ...
+
+  -- eAddText :: Event t Text
+  eAddText <- add
+  let 
+    -- eAdd :: Event t TodoItem
+    eAdd = TodoItem False <$> eAddText
+
+  -- dCount :: Dynamic t Int
+  dCount <- count eAdd
+
+
+
+
+
+  ...
+```
+
+##
+
+```haskell
+  ...
+
+  -- eAddText :: Event t Text
+  eAddText <- add
+  let 
+    -- eAdd :: Event t TodoItem
+    eAdd = TodoItem False <$> eAddText
+
+  -- dCount :: Dynamic t Int
+  dCount <- count eAdd
+
+  -- dMap     :: Dynamic t (Map Int TodoItem)
   dMap <- foldDyn ($) Map.empty $
-      Map.insert <$> current dNextKey <@> eAdd
+      Map.insert <$> current dCount <@> eAdd
 
   ...
 ```
@@ -65,17 +96,15 @@ addItemWidget :: MonadWidget t m
 
 ```haskell
 todoItem :: MonadWidget t m 
-            -- The value of the text for the item
-         => Dynamic t Text
-            -- Fires when item should be removed
-         -> m (Event t ())
+         => Dynamic t TodoItem
+         -> m (Event t (TodoItem -> TodoItem), Event t ())
 ```
 
 ##
 
 ```haskell
 dMap 
-  :: Dynamic t (Map Int Text)
+  :: Dynamic t (Map Int TodoItem)
 
 
 
@@ -92,12 +121,12 @@ dMap
 
 ```haskell
 dMap 
-  :: Dynamic t (Map Int Text)
+  :: Dynamic t (Map Int TodoItem)
 
 todoItem
   :: MonadWidget t m
-  => Dynamic t Text
-  -> m (Event t ())
+  => Dynamic t TodoItem
+  -> m (Event t (TodoItem -> TodoItem), Event t ())
 
 
 
@@ -109,208 +138,225 @@ todoItem
 
 ```haskell
 dMap 
-  :: Dynamic t (Map Int Text)
+  :: Dynamic t (Map Int TodoItem)
 
 todoItem 
   :: MonadWidget t m
-  => Dynamic t Text
-  -> m (Event t ())
+  => Dynamic t TodoItem
+  -> m (Event t (TodoItem -> TodoItem), Event t ())
 
 list 
-  ::    Dynamic t (Map k   v                        )
-  ->   (Dynamic t          v    ->   m            a ) 
-  -> m (Dynamic t (Map k                          a))
+  ::    Dynamic t (Map k   v                                )
+  ->   (Dynamic t          v  -> m                        a ) 
+  -> m (Dynamic t (Map k                                  a))
 ```
 
 ##
 
 ```haskell
 dMap 
-  :: Dynamic t (Map Int Text)
+  :: Dynamic t (Map Int TodoItem)
 
 todoItem 
   :: MonadWidget t m
-  => Dynamic t Text
-  -> m (Event t ())
+  => Dynamic t TodoItem
+  -> m (Event t (TodoItem -> TodoItem), Event t ())
 
-list dMap
-  ::    Dynamic t (Map k   v                        )
-  ->   (Dynamic t          v    ->   m            a ) 
-  -> m (Dynamic t (Map k                          a))
+list 
+  ::    D t (Map k   v                                )
+  ->   (D t          v  -> m                        a ) 
+  -> m (D t (Map k                                  a))
 ```
 
 ##
 
 ```haskell
 dMap 
-  :: Dynamic t (Map Int Text)
+  :: Dynamic t (Map Int TodoItem)
 
 todoItem 
   :: MonadWidget t m
-  => Dynamic t Text
-  -> m (Event t ())
+  => Dynamic t TodoItem
+  -> m (Event t (TodoItem -> TodoItem), Event t ())
 
 list dMap
-  ::    Dynamic t (Map Int v                        )
-  ->   (Dynamic t          v    ->   m            a ) 
-  -> m (Dynamic t (Map k                          a))
+  ::    D t (Map k   v                                )
+  ->   (D t          v  -> m                        a ) 
+  -> m (D t (Map k                                  a))
 ```
 
 ##
 
 ```haskell
 dMap 
-  :: Dynamic t (Map Int Text)
+  :: Dynamic t (Map Int TodoItem)
 
 todoItem 
   :: MonadWidget t m
-  => Dynamic t Text
-  -> m (Event t ())
+  => Dynamic t TodoItem
+  -> m (Event t (TodoItem -> TodoItem), Event t ())
 
 list dMap
-  ::    Dynamic t (Map Int v                        )
-  ->   (Dynamic t          v    ->   m            a ) 
-  -> m (Dynamic t (Map Int                        a))
+  ::    D t (Map Int v                                )
+  ->   (D t          v  -> m                        a ) 
+  -> m (D t (Map k                                  a))
 ```
 
 ##
 
 ```haskell
 dMap 
-  :: Dynamic t (Map Int Text)
+  :: Dynamic t (Map Int TodoItem)
 
 todoItem 
   :: MonadWidget t m
-  => Dynamic t Text
-  -> m (Event t ())
+  => Dynamic t TodoItem
+  -> m (Event t (TodoItem -> TodoItem), Event t ())
 
 list dMap
-  ::    Dynamic t (Map Int Text                     )
-  ->   (Dynamic t          v    ->   m            a ) 
-  -> m (Dynamic t (Map Int                        a))
+  ::    D t (Map Int v                                )
+  ->   (D t          v  -> m                        a ) 
+  -> m (D t (Map Int                                a))
 ```
 
 ##
 
 ```haskell
 dMap 
-  :: Dynamic t (Map Int Text)
+  :: Dynamic t (Map Int TodoItem)
 
 todoItem 
   :: MonadWidget t m
-  => Dynamic t Text
-  -> m (Event t ())
+  => Dynamic t TodoItem
+  -> m (Event t (TodoItem -> TodoItem), Event t ())
 
 list dMap
-  ::    Dynamic t (Map Int Text                     )
-  ->   (Dynamic t          Text ->   m            a ) 
-  -> m (Dynamic t (Map Int                        a))
+  ::    D t (Map Int TI                               )
+  ->   (D t          v  -> m                        a ) 
+  -> m (D t (Map Int                                a))
 ```
 
 ##
 
 ```haskell
 dMap 
-  :: Dynamic t (Map Int Text)
+  :: Dynamic t (Map Int TodoItem)
 
-todoItem
+todoItem 
   :: MonadWidget t m
-  => Dynamic t Text
-  -> m (Event t ())
+  => Dynamic t TodoItem
+  -> m (Event t (TodoItem -> TodoItem), Event t ())
+
+list dMap
+  ::    D t (Map Int TI                               )
+  ->   (D t          TI -> m                        a ) 
+  -> m (D t (Map Int                                a))
+```
+
+##
+
+```haskell
+dMap 
+  :: Dynamic t (Map Int TodoItem)
+
+todoItem 
+  :: MonadWidget t m
+  => Dynamic t TodoItem
+  -> m (Event t (TodoItem -> TodoItem), Event t ())
 
 list dMap 
   ::
-       (Dynamic t          Text ->   m            a ) 
-  -> m (Dynamic t (Map Int                        a))
+       (D t          TI -> m                        a ) 
+  -> m (D t (Map Int                                a))
 ```
 
 ##
 
 ```haskell
 dMap 
-  :: Dynamic t (Map Int Text)
+  :: Dynamic t (Map Int TodoItem)
 
-todoItem
+todoItem 
   :: MonadWidget t m
-  => Dynamic t Text
-  -> m (Event t ())
+  => Dynamic t TodoItem
+  -> m (Event t (TodoItem -> TodoItem), Event t ())
 
 list dMap todoItem
   ::
-       (Dynamic t          Text ->   m            a ) 
-  -> m (Dynamic t (Map Int                        a))
+       (D t          TI -> m                        a ) 
+  -> m (D t (Map Int                                a))
 ```
 
 ##
 
 ```haskell
 dMap 
-  :: Dynamic t (Map Int Text)
+  :: Dynamic t (Map Int TodoItem)
 
-todoItem
+todoItem 
   :: MonadWidget t m
-  => Dynamic t Text
-  -> m (Event t ())
+  => Dynamic t TodoItem
+  -> m (Event t (TodoItem -> TodoItem), Event t ())
 
 list dMap todoItem
   ::
-       (Dynamic t          Text ->   m (Event t ()) ) 
-  -> m (Dynamic t (Map Int                        a))
+       (D t          TI -> m (E t (TI -> TI), E t ()) ) 
+  -> m (D t (Map Int                                a))
 ```
 
 ##
 
 ```haskell
 dMap 
-  :: Dynamic t (Map Int Text)
+  :: Dynamic t (Map Int TodoItem)
 
-todoItem
+todoItem 
   :: MonadWidget t m
-  => Dynamic t Text
-  -> m (Event t ())
+  => Dynamic t TodoItem
+  -> m (Event t (TodoItem -> TodoItem), Event t ())
 
 list dMap todoItem
   ::
-       (Dynamic t          Text ->   m (Event t ()) ) 
-  -> m (Dynamic t (Map Int             (Event t ())))
+       (D t          TI -> m (E t (TI -> TI), E t ()) ) 
+  -> m (D t (Map Int         (E t (TI -> TI), E t ())))
 ```
 
 ##
 
 ```haskell
 dMap 
-  :: Dynamic t (Map Int Text)
+  :: Dynamic t (Map Int TodoItem)
 
-todoItem
+todoItem 
   :: MonadWidget t m
-  => Dynamic t Text
-  -> m (Event t ())
+  => Dynamic t TodoItem
+  -> m (Event t (TodoItem -> TodoItem), Event t ())
 
 list dMap todoItem
   ::
 
-     m (Dynamic t (Map Int             (Event t ())))
+  -> m (D t (Map Int         (E t (TI -> TI), E t ())))
 ```
 
 ##
 
 ```haskell
-  -- Dynamic t (Map Int (Event t ()))
-  dmItems <-           list dMap $ \dv -> 
-                         todoItem dv
+  -- D t (Map Int (E t (TI -> TI), E t ()))
+  dmEvents <-           list dMap $ \dv -> 
+                          todoItem dv
 ```
 
 ##
 
 ```haskell
-  -- Dynamic t (Map Int (Event t ()))
-  dmItems <- el "ul" . list dMap $ \dv -> 
-               el "li" . todoItem $ dv
+  -- D t (Map Int (E t (TI -> TI), E t ()))
+  dmEvents <- el "ul" . list dMap $ \dv -> 
+                el "li" . todoItem $ dv
 ```
 
 ##
 
-<div class="demo" id="examples-collection-add"></div>
+<div class="demo" id="examples-component-pass1-todo-list-1"></div>
 
 ##
 
@@ -325,8 +371,10 @@ list dMap todoItem
 
 
 
-      -- Dynamic t (Map Int (Event t ()))
-      dmItems
+
+
+      -- D t (Map Int (E (TI -> TI),  E t ()))
+      dmEvents
 ```
 
 ##
@@ -340,10 +388,12 @@ list dMap todoItem
 
 
 
-      -- Dynamic t (Event t (Map Int ()))
-      fmap mergeMap $
-      -- Dynamic t (Map Int (Event t ()))
-      dmItems
+
+
+      -- D t (Map Int (E t ()))
+      fmap snd $
+      -- D t (Map Int (E (TI -> TI),  E t ()))
+      dmEvents
 ```
 
 ##
@@ -355,12 +405,33 @@ list dMap todoItem
 
 
 
-      -- Behavior t (Event t (Map Int ()))
+
+
+      -- D t (E t (Map Int ()))
+      fmap mergeMap .
+      -- D t (Map Int (E t ()))
+      fmap snd $
+      -- D t (Map Int (E (TI -> TI),  E t ()))
+      dmEvents
+```
+
+##
+
+```haskell
+  let
+    eRemoves =
+    
+
+
+
+      -- B t (E t (Map Int ()))
       current .
-      -- Dynamic t (Event t (Map Int ()))
-      fmap mergeMap $
-      -- Dynamic t (Map Int (Event t ()))
-      dmItems
+      -- D t (E t (Map Int ()))
+      fmap mergeMap .
+      -- D t (Map Int (E t ()))
+      fmap snd $
+      -- D t (Map Int (E (TI -> TI),  E t ()))
+      dmEvents
 ```
 
 ##
@@ -370,14 +441,16 @@ list dMap todoItem
     eRemoves =
     
 
-      -- Event t (Map Int ())
+      -- E t (Map Int ())
       switch .
-      -- Behavior t (Event t (Map Int ()))
+      -- B t (E t (Map Int ()))
       current .
-      -- Dynamic t (Event t (Map Int ()))
-      fmap mergeMap $
-      -- Dynamic t (Map Int (Event t ()))
-      dmItems
+      -- D t (E t (Map Int ()))
+      fmap mergeMap .
+      -- D t (Map Int (E t ()))
+      fmap snd $
+      -- D t (Map Int (E (TI -> TI),  E t ()))
+      dmEvents
 ```
 
 ##
@@ -385,30 +458,31 @@ list dMap todoItem
 ```haskell
   let
     eRemoves =
-      -- Event t [Int]
+      -- E t [Int]
       fmap Map.keys .
-      -- Event t (Map Int ())
+      -- E t (Map Int ())
       switch .
-      -- Behavior t (Event t (Map Int ()))
+      -- B t (E t (Map Int ()))
       current .
-      -- Dynamic t (Event t (Map Int ()))
-      fmap mergeMap $
-      -- Dynamic t (Map Int (Event t ()))
-      dmItems
+      -- D t (E t (Map Int ()))
+      fmap mergeMap .
+      -- D t (Map Int (E t ()))
+      fmap snd $
+      -- D t (Map Int (E (TI -> TI),  E t ()))
+      dmEvents
 ```
 
 ##
 
 ```haskell
-  dmText <- foldDyn ($) Map.empty                 $
-      Map.insert <$> current dNextKey <@> eAdd
+  dMap <- foldDyn ($) Map.empty                 $
+      Map.insert <$> current dCount <@> eAdd
 
 
 
-  dmItems <- el "ul" . list dMap $ \dv -> 
+
+  dmEvents <- el "ul" . list dMap $ \dv -> 
     el "li"  todoItem $ dv
-
-
 
 
 
@@ -421,15 +495,14 @@ list dMap todoItem
 ##
 
 ```haskell
-  dmText <- foldDyn ($) Map.empty . mergeWith (.) $ [
-      Map.insert <$> current dNextKey <@> eAdd
+  dMap <- foldDyn ($) Map.empty . mergeWith (.) $ [
+      Map.insert <$> current dCount <@> eAdd
+
 
     ]
 
-  dmItems <- el "ul" . list dMap $ \dv -> 
+  dmEvents <- el "ul" . list dMap $ \dv -> 
     el "li"  todoItem $ dv
-
-
 
 
 
@@ -441,58 +514,493 @@ list dMap todoItem
 ##
 
 ```haskell
-  dmText <- foldDyn ($) Map.empty . mergeWith (.) $ [
-      Map.insert <$> current dNextKey <@> eAdd
+  dMap <- foldDyn ($) Map.empty . mergeWith (.) $ [
+      Map.insert <$> current dCount <@> eAdd
+
 
     ]
 
-  dmItems <- el "ul" . list dMap $ \dv -> 
+  dmEvents <- el "ul" . list dMap $ \dv -> 
     el "li"  todoItem $ dv
 
   let
     -- Event t [Int]
     eRemoves =
       fmap Map.keys .
-      switch .
-      current .
-      fmap mergeMap $
-      dmItems
+      switch . current . fmap mergeMap . fmap snd $
+      dmEvents
 ```
 
 ##
 
 ```haskell
-  dmText <- foldDyn ($) Map.empty . mergeWith (.) $ [
-      Map.insert <$> current dNextKey <@> eAdd
+  dMap <- foldDyn ($) Map.empty . mergeWith (.) $ [
+      Map.insert <$> current dCount <@> eAdd
+
     , flip (foldr Map.delete) <$> eRemoves
     ]
 
-  dmItems <- el "ul" . list dMap $ \dv -> 
+  dmEvents <- el "ul" . list dMap $ \dv -> 
     el "li"  todoItem $ dv
 
   let
     -- Event t [Int]
     eRemoves =
       fmap Map.keys .
-      switch .
-      current .
-      fmap mergeMap $
-      dmItems
+      switch . current . fmap mergeMap . fmap snd $
+      dmEvents
 ```
 
 ##
 
-<div class="demo" id="examples-collection-remove"></div>
-
-<!--
-##
-
-TODO add clear complete
+<div class="demo" id="examples-component-pass1-todo-list-2"></div>
 
 ##
 
-<div class="demo" id="examples-collection-remove-complete"></div>
--->
+```haskell
+  dMap <- foldDyn ($) Map.empty . mergeWith (.) $ [
+      Map.insert <$> current dCount <@> eAdd
+
+    , flip (foldr Map.delete) <$> eRemoves
+    ]
+
+  dmEvents <- el "ul" . list dMap $ \dv -> 
+    el "li"  todoItem $ dv
+
+  let
+  
+  
+  
+  
+    -- Event t [Int]
+    eRemoves =
+      fmap Map.keys .
+      switch . current . fmap mergeMap . fmap snd $
+      dmEvents
+```
+
+##
+
+```haskell
+  dMap <- foldDyn ($) Map.empty . mergeWith (.) $ [
+      Map.insert <$> current dCount <@> eAdd
+
+    , flip (foldr Map.delete) <$> eRemoves
+    ]
+
+  dmEvents <- el "ul" . list dMap $ \dv -> 
+    el "li"  todoItem $ dv
+
+  let
+    -- Event t (Map Int (TI -> TI))
+    eChanges =
+      switch . current . fmap mergeMap . fmap fst $
+      dmEvents
+    -- Event t [Int]
+    eRemoves =
+      fmap Map.keys .
+      switch . current . fmap mergeMap . fmap snd $
+      dmEvents
+```
+
+##
+
+```haskell
+  dMap <- foldDyn ($) Map.empty . mergeWith (.) $ [
+      Map.insert <$> current dCount <@> eAdd
+    , applyMap <$> eChanges
+    , flip (foldr Map.delete) <$> eRemoves
+    ]
+
+  dmEvents <- el "ul" . list dMap $ \dv -> 
+    el "li"  todoItem $ dv
+
+  let
+    -- Event t (Map Int (TI -> TI))
+    eChanges =
+      switch . current . fmap mergeMap . fmap fst $
+      dmEvents
+    -- Event t [Int]
+    eRemoves =
+      fmap Map.keys .
+      switch . current . fmap mergeMap . fmap snd $
+      dmEvents
+```
+
+##
+
+<div class="demo" id="examples-component-pass1-todo-list-3"></div>
+
+##
+
+```haskell
+  dMap <- foldDyn ($) Map.empty . mergeWith (.) $ [
+      Map.insert <$> current dCount <@> eAdd
+    , applyMap <$> eChanges
+    , flip (foldr Map.delete) <$> eRemoves
+
+
+    ]
+    
+  ...
+
+
+
+
+
+
+
+
+
+
+
+```
+
+##
+
+```haskell
+  dMap <- foldDyn ($) Map.empty . mergeWith (.) $ [
+      Map.insert <$> current dCount <@> eAdd
+    , applyMap <$> eChanges
+    , flip (foldr Map.delete) <$> eRemoves
+
+
+    ]
+    
+  ...
+
+  let
+    -- dComplete :: Dynamic t [Bool]
+    dComplete = fmap (Map.elems . fmap (view tiComplete)) dMap
+
+
+
+
+
+
+
+```
+
+##
+
+```haskell
+  dMap <- foldDyn ($) Map.empty . mergeWith (.) $ [
+      Map.insert <$> current dCount <@> eAdd
+    , applyMap <$> eChanges
+    , flip (foldr Map.delete) <$> eRemoves
+
+
+    ]
+    
+  ...
+
+  let
+    -- dComplete :: Dynamic t [Bool]
+    dComplete = fmap (Map.elems . fmap (view tiComplete)) dMap
+
+
+
+  el "hr" $ pure ()
+
+
+
+```
+
+##
+
+```haskell
+  dMap <- foldDyn ($) Map.empty . mergeWith (.) $ [
+      Map.insert <$> current dCount <@> eAdd
+    , applyMap <$> eChanges
+    , flip (foldr Map.delete) <$> eRemoves
+
+
+    ]
+    
+  ...
+
+  let
+    -- dComplete :: Dynamic t [Bool]
+    dComplete = fmap (Map.elems . fmap (view tiComplete)) dMap
+    dAllComplete = fmap and dComplete
+
+
+  el "hr" $ pure ()
+
+
+
+```
+
+##
+
+```haskell
+  dMap <- foldDyn ($) Map.empty . mergeWith (.) $ [
+      Map.insert <$> current dCount <@> eAdd
+    , applyMap <$> eChanges
+    , flip (foldr Map.delete) <$> eRemoves
+
+
+    ]
+    
+  ...
+
+  let
+    -- dComplete :: Dynamic t [Bool]
+    dComplete = fmap (Map.elems . fmap (view tiComplete)) dMap
+    dAllComplete = fmap and dComplete
+
+
+  el "hr" $ pure ()
+
+  eMarkAllComplete <- el "div" $ markAllComplete dAllComplete
+
+```
+
+##
+
+```haskell
+  dMap <- foldDyn ($) Map.empty . mergeWith (.) $ [
+      Map.insert <$> current dCount <@> eAdd
+    , applyMap <$> eChanges
+    , flip (foldr Map.delete) <$> eRemoves
+    , (fmap . set tiComplete) <$> eMarkAllComplete
+
+    ]
+    
+  ...
+
+  let
+    -- dComplete :: Dynamic t [Bool]
+    dComplete = fmap (Map.elems . fmap (view tiComplete)) dMap
+    dAllComplete = fmap and dComplete
+
+
+  el "hr" $ pure ()
+
+  eMarkAllComplete <- el "div" $ markAllComplete dAllComplete
+
+```
+
+##
+
+```haskell
+  dMap <- foldDyn ($) Map.empty . mergeWith (.) $ [
+      Map.insert <$> current dCount <@> eAdd
+    , applyMap <$> eChanges
+    , flip (foldr Map.delete) <$> eRemoves
+    , (fmap . set tiComplete) <$> eMarkAllComplete
+
+    ]
+    
+  ...
+
+  let
+    -- dComplete :: Dynamic t [Bool]
+    dComplete = fmap (Map.elems . fmap (view tiComplete)) dMap
+    dAllComplete = fmap and dComplete
+    dAnyComplete = fmap or dComplete
+
+  el "hr" $ pure ()
+
+  eMarkAllComplete <- el "div" $ markAllComplete dAllComplete
+
+```
+
+##
+
+```haskell
+  dMap <- foldDyn ($) Map.empty . mergeWith (.) $ [
+      Map.insert <$> current dCount <@> eAdd
+    , applyMap <$> eChanges
+    , flip (foldr Map.delete) <$> eRemoves
+    , (fmap . set tiComplete) <$> eMarkAllComplete
+
+    ]
+    
+  ...
+
+  let
+    -- dComplete :: Dynamic t [Bool]
+    dComplete = fmap (Map.elems . fmap (view tiComplete)) dMap
+    dAllComplete = fmap and dComplete
+    dAnyComplete = fmap or dComplete
+
+  el "hr" $ pure ()
+
+  eMarkAllComplete <- el "div" $ markAllComplete dAllComplete
+  eClearComplete   <- el "div" $ clearComplete   dAnyComplete
+```
+
+##
+
+```haskell
+  dMap <- foldDyn ($) Map.empty . mergeWith (.) $ [
+      Map.insert <$> current dCount <@> eAdd
+    , applyMap <$> eChanges
+    , flip (foldr Map.delete) <$> eRemoves
+    , (fmap . set tiComplete) <$> eMarkAllComplete
+    , Map.filter (not . view tiComplete) <$ eClearComplete
+    ]
+    
+  ...
+
+  let
+    -- dComplete :: Dynamic t [Bool]
+    dComplete = fmap (Map.elems . fmap (view tiComplete)) dMap
+    dAllComplete = fmap and dComplete
+    dAnyComplete = fmap or dComplete
+
+  el "hr" $ pure ()
+
+  eMarkAllComplete <- el "div" $ markAllComplete dAllComplete
+  eClearComplete   <- el "div" $ clearComplete   dAnyComplete
+```
+
+##
+
+<div class="demo" id="examples-component-pass1-todo-list-4"></div>
+
+##
+
+```haskell
+todoList :: MonadWidget t m 
+         => 
+            m ()
+todoList     = mdo
+
+
+
+  eAddText <- add
+  let
+    eAdd = TodoItem False <$> eAddText
+
+  dCount <- count eAdd
+  
+  
+
+  dMap <- foldDyn ($) Map.empty  . mergeWith (.) $ [
+                Map.insert <$> current dCount <@> eAdd
+                ...
+```
+
+##
+
+```haskell
+todoList :: MonadWidget t m 
+         => [TodoItem]
+         -> m ()
+todoList     = mdo
+
+
+
+  eAddText <- add
+  let
+    eAdd = TodoItem False <$> eAddText
+
+  dCount <- count eAdd
+  
+  
+
+  dMap <- foldDyn ($) Map.empty  . mergeWith (.) $ [
+                Map.insert <$> current dCount <@> eAdd
+                ...
+```
+
+##
+
+```haskell
+todoList :: MonadWidget t m 
+         => [TodoItem]
+         -> m ()
+todoList tis = mdo
+
+
+
+  eAddText <- add
+  let
+    eAdd = TodoItem False <$> eAddText
+
+  dCount <- count eAdd
+  
+  
+
+  dMap <- foldDyn ($) Map.empty  . mergeWith (.) $ [
+                Map.insert <$> current dCount <@> eAdd
+                ...
+```
+
+##
+
+```haskell
+todoList :: MonadWidget t m 
+         => [TodoItem]
+         -> m ()
+todoList tis = mdo
+  let
+    initialMap = Map.fromList . zip [0..] $ tis
+
+  eAddText <- add
+  let
+    eAdd = TodoItem False <$> eAddText
+
+  dCount <- count eAdd
+  
+  
+
+  dMap <- foldDyn ($) Map.empty  . mergeWith (.) $ [
+                Map.insert <$> current dCount <@> eAdd
+                ...
+```
+
+##
+
+```haskell
+todoList :: MonadWidget t m 
+         => [TodoItem]
+         -> m ()
+todoList tis = mdo
+  let
+    initialMap = Map.fromList . zip [0..] $ tis
+
+  eAddText <- add
+  let
+    eAdd = TodoItem False <$> eAddText
+
+  dAdds  <- count eAdd
+  let
+    dCount = (+ length tis) <$> dAdds
+
+  dMap <- foldDyn ($) Map.empty  . mergeWith (.) $ [
+                Map.insert <$> current dCount <@> eAdd
+                ...
+```
+
+##
+
+```haskell
+todoList :: MonadWidget t m 
+         => [TodoItem] 
+         -> m ()
+todoList tis = mdo
+  let
+    initialMap = Map.fromList . zip [0..] $ tis
+
+  eAddText <- add
+  let
+    eAdd = TodoItem False <$> eAddText
+
+  dAdds  <- count eAdd
+  let
+    dCount = (+ length tis) <$> dAdds
+
+  dMap <- foldDyn ($) initialMap . mergeWith (.) $ [
+                Map.insert <$> current dCount <@> eAdd
+                ...
+```
+
+##
+
+<div class="demo" id="examples-component-pass1-todo-list-5"></div>
 
 
 

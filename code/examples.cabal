@@ -21,6 +21,7 @@ library
                      , Examples.RecursiveDo
                      , Examples.Dom
                      , Examples.Switch
+                     , Examples.Components
                      , Examples.Components.Pass1
                      , Examples.Components.Pass2
                      , Examples.Components.Pass3

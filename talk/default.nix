@@ -39,6 +39,7 @@ in
           $src/slides/higher-order.md \
           $src/slides/dom.md \
           $src/slides/switching.md \
+          $src/slides/components.md \
           $src/slides/collections.md \
           $src/slides/conclusion.md \
           > slides.md

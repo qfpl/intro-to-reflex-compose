@@ -9,6 +9,7 @@ Portability : non-portable
 {-# LANGUAGE RecursiveDo #-}
 {-# LANGUAGE TemplateHaskell #-}
 module Examples.Components.Pass1 (
+    attachComponentExamplesPass1
   ) where
 
 import Control.Monad (void)
@@ -23,7 +24,9 @@ import qualified Data.Text as Text
 
 import Reflex
 import Reflex.Dom.Core
+import GHCJS.DOM.Types (MonadJSM)
 
+import Util.Attach
 import Util.Runner
 
 getKey :: Reflex t => TextInput t -> Key -> Event t ()
@@ -111,10 +114,16 @@ editWrite dText = Workflow $ do
 edit ::
   MonadWidget t m =>
   Dynamic t Text ->
-  m (Event t Text)
+  m (Event t Text, Event t ())
 edit dText = do
   deText <- workflow $ editRead dText
-  pure . switch . current $ deText
+
+  let
+    eText = switch . current $ deText
+    eTextNonEmpty =       ffilter (not . Text.null) eText
+    eTextEmpty    = () <$ ffilter        Text.null  eText
+
+  pure (eTextNonEmpty, eTextEmpty)
 
 remove ::
   MonadWidget t m =>
@@ -122,74 +131,250 @@ remove ::
 remove =
   button "Remove"
 
-data TodoItemModel =
-  TodoItemModel {
-    _timComplete :: Bool
-  , _timText     :: Text
+data TodoItem =
+  TodoItem {
+    _tiComplete :: Bool
+  , _tiText     :: Text
   }
 
-makeLenses ''TodoItemModel
+makeLenses ''TodoItem
 
 todoItem ::
   MonadWidget t m =>
-  Dynamic t TodoItemModel ->
-  m (Event t (TodoItemModel -> TodoItemModel), Event t ())
-todoItem dTodoItemModel = do
-  dComplete <- holdUniqDyn $ fmap (view timComplete) dTodoItemModel
-  dText     <- holdUniqDyn $ fmap (view timText)     dTodoItemModel
+  Dynamic t TodoItem ->
+  m (Event t (TodoItem -> TodoItem), Event t ())
+todoItem dTodoItem = do
+  dComplete <- holdUniqDyn $
+    fmap (view tiComplete) dTodoItem
+  dText     <- holdUniqDyn $
+    fmap (view tiText)     dTodoItem
 
-  eComplete    <- complete dComplete
-  eText        <- edit dText
-  eRemoveClick <- remove
+  eComplete             <- complete dComplete
+  (eText, eRemoveEmpty) <- edit dText
+  eRemoveClick          <- remove
 
   let
-    eTextNonEmpty =       ffilter (not . Text.null) eText
-    eTextEmpty    = () <$ ffilter        Text.null  eText
-
     eChange = mergeWith (.) [
-                  set timComplete <$> eComplete
-                , set timText     <$> eTextNonEmpty
+                  set tiComplete <$> eComplete
+                , set tiText     <$> eText
                 ]
     eRemove = leftmost [
-                  eTextEmpty
+                  eRemoveEmpty
                 , eRemoveClick
                 ]
 
   pure (eChange, eRemove)
 
-todoList ::
+editExample1 ::
   MonadWidget t m =>
-  [TodoItemModel] ->
   m ()
-todoList tims = mdo
+editExample1 = el "div" $ mdo
+  dText <- holdDyn "Test" eText
+  (eText, eRemove) <- edit dText
+
+  dCountChange <- count eText
+  el "div" $ do
+    text "Changes: "
+    display dCountChange
+
+  dCountRemove <- count eRemove
+  el "div" $ do
+    text "Removes: "
+    display dCountRemove
+
+  pure ()
+
+editExample2 ::
+  MonadWidget t m =>
+  m ()
+editExample2 = el "div" $ mdo
+  dItem <- foldDyn ($) (TodoItem False "Test") eChange
+
+  (eChange, eRemove) <- elClass "div" "todo-item" $
+    todoItem dItem
+
+  el "div" $ do
+    el "div" $ do
+      text "Complete: "
+      display $ view tiComplete <$> dItem
+    el "div" $ do
+      text "Text: "
+      display $ view tiText <$> dItem
+
+  dCountChange <- count eChange
+  dCountRemove <- count eRemove
+
+  el "div" $ do
+    el "div" $ do
+      text "Changes: "
+      display dCountChange
+
+    el "div" $ do
+      text "Removes: "
+      display dCountRemove
+
+  pure ()
+
+todoList1 ::
+  MonadWidget t m =>
+  [TodoItem] ->
+  m ()
+todoList1 tis = elClass "div" "todo" $ mdo
   let
-    initialMap = Map.fromList . zip [0..] $ tims
+    initialMap = Map.fromList . zip [0..] $ tis
 
   eAddText <- add
   let
-    eAdd = TodoItemModel False <$> eAddText
+    eAdd = TodoItem False <$> eAddText
 
   dAdds <- count eAdd
   let
-    dCount = (+ length tims) <$> dAdds
+    dCount = (+ length tis) <$> dAdds
 
   dModel <- foldDyn ($) initialMap . mergeWith (.) $ [
                 Map.insert <$> current dCount <@> eAdd
-              , Map.mergeWithKey (\_ f x -> Just (f x)) (const mempty) id <$> eChanges
-              , flip (foldr Map.delete) <$> eRemoves
-              , (fmap . set timComplete) <$> eMarkAllComplete
-              , Map.filter (not . view timComplete) <$ eClearComplete
+              -- , Map.mergeWithKey (\_ f x -> Just (f x)) (const mempty) id <$> eChanges
+              -- , flip (foldr Map.delete) <$> eRemoves
+              -- , (fmap . set tiComplete) <$> eMarkAllComplete
+              -- , Map.filter (not . view tiComplete) <$ eClearComplete
               ]
 
   dMap <- elClass "ul" "todo-list" . list dModel $ \dv ->
             elClass "li" "todo-item" . todoItem $ dv
 
   let
-    dComplete = fmap (Map.elems . fmap (view timComplete)) dModel
+    dComplete = fmap (Map.elems . fmap (view tiComplete)) dModel
     dAllComplete = fmap and dComplete
     dAnyComplete = fmap or dComplete
 
-  el "hr" $ pure ()
+  -- eMarkAllComplete <- el "div" $ markAllComplete dAllComplete
+  -- eClearComplete   <- el "div" $ clearComplete   dAnyComplete
+
+  let
+    eChanges =
+      switch . current . fmap (mergeMap . fmap fst) $ dMap
+    eRemoves =
+      fmap Map.keys . switch . current . fmap (mergeMap . fmap snd) $ dMap
+
+  pure ()
+
+todoList2 ::
+  MonadWidget t m =>
+  [TodoItem] ->
+  m ()
+todoList2 tis = elClass "div" "todo" $ mdo
+  let
+    initialMap = Map.fromList . zip [0..] $ tis
+
+  eAddText <- add
+  let
+    eAdd = TodoItem False <$> eAddText
+
+  dAdds <- count eAdd
+  let
+    dCount = (+ length tis) <$> dAdds
+
+  dModel <- foldDyn ($) initialMap . mergeWith (.) $ [
+                Map.insert <$> current dCount <@> eAdd
+              -- , Map.mergeWithKey (\_ f x -> Just (f x)) (const mempty) id <$> eChanges
+              , flip (foldr Map.delete) <$> eRemoves
+              -- , (fmap . set tiComplete) <$> eMarkAllComplete
+              -- , Map.filter (not . view tiComplete) <$ eClearComplete
+              ]
+
+  dMap <- elClass "ul" "todo-list" . list dModel $ \dv ->
+            elClass "li" "todo-item" . todoItem $ dv
+
+  let
+    dComplete = fmap (Map.elems . fmap (view tiComplete)) dModel
+    dAllComplete = fmap and dComplete
+    dAnyComplete = fmap or dComplete
+
+  -- eMarkAllComplete <- el "div" $ markAllComplete dAllComplete
+  -- eClearComplete   <- el "div" $ clearComplete   dAnyComplete
+
+  let
+    eChanges =
+      switch . current . fmap (mergeMap . fmap fst) $ dMap
+    eRemoves =
+      fmap Map.keys . switch . current . fmap (mergeMap . fmap snd) $ dMap
+
+  pure ()
+
+todoList3 ::
+  MonadWidget t m =>
+  [TodoItem] ->
+  m ()
+todoList3 tis = elClass "div" "todo" $ mdo
+  let
+    initialMap = Map.fromList . zip [0..] $ tis
+
+  eAddText <- add
+  let
+    eAdd = TodoItem False <$> eAddText
+
+  dAdds <- count eAdd
+  let
+    dCount = (+ length tis) <$> dAdds
+
+  dModel <- foldDyn ($) initialMap . mergeWith (.) $ [
+                Map.insert <$> current dCount <@> eAdd
+              , Map.mergeWithKey (\_ f x -> Just (f x)) (const mempty) id <$> eChanges
+              , flip (foldr Map.delete) <$> eRemoves
+              -- , (fmap . set tiComplete) <$> eMarkAllComplete
+              -- , Map.filter (not . view tiComplete) <$ eClearComplete
+              ]
+
+  dMap <- elClass "ul" "todo-list" . list dModel $ \dv ->
+            elClass "li" "todo-item" . todoItem $ dv
+
+  let
+    dComplete = fmap (Map.elems . fmap (view tiComplete)) dModel
+    dAllComplete = fmap and dComplete
+    dAnyComplete = fmap or dComplete
+
+  -- eMarkAllComplete <- el "div" $ markAllComplete dAllComplete
+  -- eClearComplete   <- el "div" $ clearComplete   dAnyComplete
+
+  let
+    eChanges =
+      switch . current . fmap (mergeMap . fmap fst) $ dMap
+    eRemoves =
+      fmap Map.keys . switch . current . fmap (mergeMap . fmap snd) $ dMap
+
+  pure ()
+
+todoList4 ::
+  MonadWidget t m =>
+  [TodoItem] ->
+  m ()
+todoList4 tis = elClass "div" "todo" $ mdo
+  let
+    initialMap = Map.fromList . zip [0..] $ tis
+
+  eAddText <- add
+  let
+    eAdd = TodoItem False <$> eAddText
+
+  dAdds <- count eAdd
+  let
+    dCount = (+ length tis) <$> dAdds
+
+  dModel <- foldDyn ($) initialMap . mergeWith (.) $ [
+                Map.insert <$> current dCount <@> eAdd
+              , Map.mergeWithKey (\_ f x -> Just (f x)) (const mempty) id <$> eChanges
+              , flip (foldr Map.delete) <$> eRemoves
+              , (fmap . set tiComplete) <$> eMarkAllComplete
+              , Map.filter (not . view tiComplete) <$ eClearComplete
+              ]
+
+  dMap <- elClass "ul" "todo-list" . list dModel $ \dv ->
+            elClass "li" "todo-item" . todoItem $ dv
+
+  let
+    dComplete = fmap (Map.elems . fmap (view tiComplete)) dModel
+    dAllComplete = fmap and dComplete
+    dAnyComplete = fmap or dComplete
 
   eMarkAllComplete <- el "div" $ markAllComplete dAllComplete
   eClearComplete   <- el "div" $ clearComplete   dAnyComplete
@@ -202,8 +387,21 @@ todoList tims = mdo
 
   pure ()
 
-go ::
-  MonadWidget t m =>
+attachComponentExamplesPass1 ::
+  MonadJSM m =>
   m ()
-go =
-  todoList [TodoItemModel False "A", TodoItemModel True "B" , TodoItemModel False "C"]
+attachComponentExamplesPass1 = do
+  attachId_ "examples-component-pass1-edit"
+    editExample1
+  attachId_ "examples-component-pass1-todo-item"
+    editExample2
+  attachId_ "examples-component-pass1-todo-list-1" $
+    todoList1 []
+  attachId_ "examples-component-pass1-todo-list-2" $
+    todoList2 []
+  attachId_ "examples-component-pass1-todo-list-3" $
+    todoList3 []
+  attachId_ "examples-component-pass1-todo-list-4" $
+    todoList4 []
+  attachId_ "examples-component-pass1-todo-list-5" $
+    todoList4 [TodoItem True "Prepare for talk", TodoItem True "Panic", TodoItem False "Give talk"]

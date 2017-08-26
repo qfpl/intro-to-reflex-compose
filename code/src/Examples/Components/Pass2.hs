@@ -93,13 +93,13 @@ markAllComplete dAllComplete = do
   text "Mark all as complete"
   pure $ cb ^. checkbox_change
 
-data TodoItemModel =
-  TodoItemModel {
-    _timComplete :: Bool
-  , _timText     :: Text
+data TodoItem =
+  TodoItem {
+    _tiComplete :: Bool
+  , _tiText     :: Text
   }
 
-makeLenses ''TodoItemModel
+makeLenses ''TodoItem
 
 data ModelWriter k i =
   ModelWriter {
@@ -141,7 +141,7 @@ removeEvent e = do
   tellEvent $ ModelWriter mempty (Set.singleton k) <$ e
 
 complete ::
-  ( HasModel t k TodoItemModel m
+  ( HasModel t k TodoItem m
   , MonadWidget t m
   ) =>
   Dynamic t Bool ->
@@ -150,10 +150,10 @@ complete dComplete = do
   initial <- sample . current $ dComplete
   cb <- checkbox initial $
     def & checkboxConfig_setValue .~ updated dComplete
-  changeEvent $ set timComplete <$> cb ^. checkbox_change
+  changeEvent $ set tiComplete <$> cb ^. checkbox_change
 
 editRead ::
-  ( HasModel t k TodoItemModel m
+  ( HasModel t k TodoItem m
   , MonadWidget t m
   )=>
   Dynamic t Text ->
@@ -163,7 +163,7 @@ editRead dText = Workflow $ do
   pure ((), editWrite dText <$ domEvent Dblclick e)
 
 editWrite ::
-  ( HasModel t k TodoItemModel m
+  ( HasModel t k TodoItem m
   , MonadWidget t m
   ) =>
   Dynamic t Text ->
@@ -175,13 +175,13 @@ editWrite dText = Workflow $ do
     eTextNonEmpty =       ffilter (not . Text.null) eText
     eTextEmpty    = () <$ ffilter        Text.null  eText
 
-  changeEvent $ set timText <$> eTextNonEmpty
+  changeEvent $ set tiText <$> eTextNonEmpty
   removeEvent eTextEmpty
 
   pure ((), editRead dText <$ eDone)
 
 edit ::
-  ( HasModel t k TodoItemModel m
+  ( HasModel t k TodoItem m
   , MonadWidget t m
   ) =>
   Dynamic t Text ->
@@ -199,14 +199,14 @@ remove = do
   removeEvent eRemove
 
 todoItem ::
-  ( HasModel t k TodoItemModel m
+  ( HasModel t k TodoItem m
   , MonadWidget t m
   ) =>
-  Dynamic t TodoItemModel ->
+  Dynamic t TodoItem ->
   m ()
-todoItem dTodoItemModel = do
-  dComplete <- holdUniqDyn $ fmap (view timComplete) dTodoItemModel
-  dText     <- holdUniqDyn $ fmap (view timText)     dTodoItemModel
+todoItem dTodoItem = do
+  dComplete <- holdUniqDyn $ fmap (view tiComplete) dTodoItem
+  dText     <- holdUniqDyn $ fmap (view tiText)     dTodoItem
 
   complete dComplete
   edit dText
@@ -214,26 +214,26 @@ todoItem dTodoItemModel = do
 
 todoList ::
   MonadWidget t m =>
-  [TodoItemModel] ->
+  [TodoItem] ->
   m ()
-todoList tims = mdo
+todoList tis = mdo
   let
-    initialMap = Map.fromList . zip [0..] $ tims
+    initialMap = Map.fromList . zip [0..] $ tis
 
   eAddText <- add
   let
-    eAdd = TodoItemModel False <$> eAddText
+    eAdd = TodoItem False <$> eAddText
 
   dAdds <- count eAdd
   let
-    dCount = (+ length tims) <$> dAdds
+    dCount = (+ length tis) <$> dAdds
 
   dModel <- foldDyn ($) initialMap . mergeWith (.) $ [
                 Map.insert <$> current dCount <@> eAdd
               , Map.mergeWithKey (\_ f x -> Just (f x)) (const mempty) id <$> eChanges
               , flip (foldr Map.delete) <$> eRemoves
-              , (fmap . set timComplete) <$> eMarkAllComplete
-              , Map.filter (not . view timComplete) <$ eClearComplete
+              , (fmap . set tiComplete) <$> eMarkAllComplete
+              , Map.filter (not . view tiComplete) <$ eClearComplete
               ]
 
   (_, eWriter) <-
@@ -241,7 +241,7 @@ todoList tims = mdo
       elClass "li" "todo-item" . flip runReaderT k . todoItem $ dv
 
   let
-    dComplete = fmap (Map.elems . fmap (view timComplete)) dModel
+    dComplete = fmap (Map.elems . fmap (view tiComplete)) dModel
     dAllComplete = fmap and dComplete
     dAnyComplete = fmap or dComplete
 
@@ -260,4 +260,4 @@ go ::
   MonadWidget t m =>
   m ()
 go =
-  todoList [TodoItemModel False "A", TodoItemModel True "B" , TodoItemModel False "C"]
+  todoList [TodoItem False "A", TodoItem True "B" , TodoItem False "C"]

@@ -735,4 +735,3 @@ workflow :: (DomBuilder t m, MonadFix m, MonadHold t m)
 
 <div class="demo" id="examples-switch-workflow-2"></div>
 
-

@@ -16,6 +16,7 @@ import Examples.Dynamics (attachDynamicExamples)
 import Examples.RecursiveDo (attachRecursiveDoExamples)
 import Examples.Dom (attachDomExamples)
 import Examples.Switch (attachSwitchExamples)
+import Examples.Components (attachComponentExamples)
 import Examples.Collection (attachCollectionExamples)
 
 examples :: JSM ()
@@ -28,5 +29,6 @@ examples = do
   attachRecursiveDoExamples
   attachDomExamples
   attachSwitchExamples
+  attachComponentExamples
   attachCollectionExamples
 
