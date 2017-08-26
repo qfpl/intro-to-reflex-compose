@@ -4,7 +4,7 @@
 ##
 
 ```haskell
-class (Monad m, Semigroup w) => EventWriter t w m | m -> t w where
+class (Monad m, Semigroup w) => EventWriter t w m where
   tellEvent :: Event t w -> m ()
 ```
 
@@ -41,7 +41,11 @@ instance Ord k => Monoid (ModelWriter k i) where
 ##
 
 ```haskell
-type HasModel t k i m = (Ord k, MonadReader k m,  EventWriter t (ModelWriter k i) m)
+type HasModel t k i m = 
+  ( Ord k
+  , MonadReader k m
+  , EventWriter t (ModelWriter k i) m
+  )
 ```
 
 ##
@@ -52,7 +56,8 @@ changeEvent :: (Reflex t, HasModel t k i m)
             -> m ()
 changeEvent e = do
   k <- ask
-  tellEvent $ (\f -> ModelWriter (Map.singleton k f) mempty) <$> e
+  let g f = ModelWriter (Map.singleton k f) mempty
+  tellEvent $ g <$> e
 ```
 
 ```haskell
@@ -61,7 +66,8 @@ removeEvent :: (Reflex t, HasModel t k i m)
             -> m ()
 removeEvent e = do
   k <- ask
-  tellEvent $ ModelWriter mempty (Set.singleton k) <$ e
+  let g = ModelWriter mempty (Set.singleton k)
+  tellEvent $ g <$ e
 ```
 
 ##
@@ -193,6 +199,7 @@ editWrite dText = Workflow $ do
 
 
 
+
   pure (eText, editRead dText <$ eDone)
 ```
 
@@ -212,6 +219,7 @@ editWrite dText = Workflow $ do
 
 
 
+
   pure (eText, editRead dText <$ eDone)
 ```
 
@@ -224,6 +232,7 @@ editWrite :: (HasModel t k TodoItem m, MonadWidget t m)
 editWrite dText = Workflow $ do
 
   (eText, eDone) <- textEdit (pure mempty) dText
+
 
 
 
@@ -405,47 +414,47 @@ edit dText =
 ##
 
 ```haskell
-remove ::                     MonadWidget t m 
-       => m (Event t ())
-remove =
-  button "Remove"
-
-```
-
-##
-
-```haskell
-remove :: (HasModel t k i m , MonadWidget t m) 
+remove ::                    MonadWidget t m 
        => m (Event t ())
 remove =
              button "Remove"
-
+  
 ```
 
 ##
 
 ```haskell
-remove :: (HasModel t k i m , MonadWidget t m) 
+remove :: (HasModel t k i m, MonadWidget t m) 
+       => m (Event t ())
+remove =
+             button "Remove"
+  
+```
+
+##
+
+```haskell
+remove :: (HasModel t k i m, MonadWidget t m) 
        => m ()
 remove =
              button "Remove"
-
+  
 ```
 
 ##
 
 ```haskell
-remove :: (HasModel t k i m , MonadWidget t m) 
+remove :: (HasModel t k i m, MonadWidget t m) 
        => m ()
 remove = do
   eRemove <- button "Remove"
-
+  
 ```
 
 ##
 
 ```haskell
-remove :: (HasModel t k i m , MonadWidget t m) 
+remove :: (HasModel t k i m, MonadWidget t m) 
        => m ()
 remove = do
   eRemove <- button "Remove"
@@ -577,23 +586,152 @@ todoItem dTodoItem = do
 ```haskell
   ...
 
-  dmEvents <- 
-    el "ul" .                   list        dMap $   \dv -> 
+  dmEvents     <- 
+    el "ul" .                   list        dMap $ \  dv -> 
       el "li" .                     todoItem $ dv
 
   ...
 
   let
-    -- Event t (Map Int (TI -> TI))
     eChanges =
       switch . current . fmap mergeMap . fmap fst $
       dmEvents
-    -- Event t [Int]
     eRemoves =
       fmap Map.keys .
       switch . current . fmap mergeMap . fmap snd $
       dmEvents
+  ...
+```
 
+##
+
+```haskell
+  ...
+
+  dmEvents     <- 
+    el "ul" .                   listWithKey dMap $ \  dv -> 
+      el "li" .                     todoItem $ dv
+
+  ...
+
+  let
+    eChanges =
+      switch . current . fmap mergeMap . fmap fst $
+      dmEvents
+    eRemoves =
+      fmap Map.keys .
+      switch . current . fmap mergeMap . fmap snd $
+      dmEvents
+  ...
+```
+
+##
+
+```haskell
+  ...
+
+  dmEvents     <- 
+    el "ul" .                   listWithKey dMap $ \k dv -> 
+      el "li" .                     todoItem $ dv
+
+  ...
+
+  let
+    eChanges =
+      switch . current . fmap mergeMap . fmap fst $
+      dmEvents
+    eRemoves =
+      fmap Map.keys .
+      switch . current . fmap mergeMap . fmap snd $
+      dmEvents
+  ...
+```
+
+##
+
+```haskell
+  ...
+
+  dmEvents     <- 
+    el "ul" .                   listWithKey dMap $ \k dv -> 
+      el "li" . flip runReaderT k . todoItem $ dv
+
+  ...
+
+  let
+    eChanges =
+      switch . current . fmap mergeMap . fmap fst $
+      dmEvents
+    eRemoves =
+      fmap Map.keys .
+      switch . current . fmap mergeMap . fmap snd $
+      dmEvents
+  ...
+```
+
+##
+
+```haskell
+  ...
+
+  dmEvents     <- 
+    el "ul" . runEventWriterT . listWithKey dMap $ \k dv ->
+      el "li" . flip runReaderT k . todoItem $ dv
+
+  ...
+
+  let
+    eChanges =
+      switch . current . fmap mergeMap . fmap fst $
+      dmEvents
+    eRemoves =
+      fmap Map.keys .
+      switch . current . fmap mergeMap . fmap snd $
+      dmEvents
+  ...
+```
+
+##
+
+```haskell
+  ...
+
+  (_, eWriter) <-
+    el "ul" . runEventWriterT . listWithKey dMap $ \k dv ->
+      el "li" . flip runReaderT k . todoItem $ dv
+
+  ...
+
+  let
+    eChanges =
+      switch . current . fmap mergeMap . fmap fst $
+      dmEvents
+    eRemoves =
+      fmap Map.keys .
+      switch . current . fmap mergeMap . fmap snd $
+      dmEvents
+  ...
+```
+
+##
+
+```haskell
+  ...
+
+  (_, eWriter) <-
+    el "ul" . runEventWriterT . listWithKey dMap $ \k dv ->
+      el "li" . flip runReaderT k . todoItem $ dv
+
+  ...
+
+  let
+    eChanges =
+      fmap (view mwChanges) $ 
+      eWriter
+    eRemoves =
+      fmap Map.keys .
+      switch . current . fmap mergeMap . fmap snd $
+      dmEvents
   ...
 ```
 
@@ -609,11 +747,9 @@ todoItem dTodoItem = do
   ...
 
   let
-
     eChanges = 
       fmap (view mwChanges) $ 
       eWriter
-
     eRemoves = 
       fmap (view mwRemoves) $
       eWriter
