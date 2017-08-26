@@ -556,8 +556,8 @@ list dMap todoItem
 ```haskell
   dMap <- foldDyn ($) Map.empty . mergeWith (.) $ [
       Map.insert <$> current dCount <@> eAdd
-
     , flip (foldr Map.delete) <$> eRemoves
+
     ]
 
   dmEvents <- el "ul" . list dMap $ \dv -> 
@@ -580,8 +580,8 @@ list dMap todoItem
 ```haskell
   dMap <- foldDyn ($) Map.empty . mergeWith (.) $ [
       Map.insert <$> current dCount <@> eAdd
-
     , flip (foldr Map.delete) <$> eRemoves
+
     ]
 
   dmEvents <- el "ul" . list dMap $ \dv -> 
@@ -604,8 +604,8 @@ list dMap todoItem
 ```haskell
   dMap <- foldDyn ($) Map.empty . mergeWith (.) $ [
       Map.insert <$> current dCount <@> eAdd
-    , applyMap <$> eChanges
     , flip (foldr Map.delete) <$> eRemoves
+    , applyMap <$> eChanges
     ]
 
   dmEvents <- el "ul" . list dMap $ \dv -> 
@@ -632,8 +632,8 @@ list dMap todoItem
 ```haskell
   dMap <- foldDyn ($) Map.empty . mergeWith (.) $ [
       Map.insert <$> current dCount <@> eAdd
-    , applyMap <$> eChanges
     , flip (foldr Map.delete) <$> eRemoves
+    , applyMap <$> eChanges
 
 
     ]
@@ -656,8 +656,8 @@ list dMap todoItem
 ```haskell
   dMap <- foldDyn ($) Map.empty . mergeWith (.) $ [
       Map.insert <$> current dCount <@> eAdd
-    , applyMap <$> eChanges
     , flip (foldr Map.delete) <$> eRemoves
+    , applyMap <$> eChanges
 
 
     ]
@@ -680,8 +680,8 @@ list dMap todoItem
 ```haskell
   dMap <- foldDyn ($) Map.empty . mergeWith (.) $ [
       Map.insert <$> current dCount <@> eAdd
-    , applyMap <$> eChanges
     , flip (foldr Map.delete) <$> eRemoves
+    , applyMap <$> eChanges
 
 
     ]
@@ -704,8 +704,8 @@ list dMap todoItem
 ```haskell
   dMap <- foldDyn ($) Map.empty . mergeWith (.) $ [
       Map.insert <$> current dCount <@> eAdd
-    , applyMap <$> eChanges
     , flip (foldr Map.delete) <$> eRemoves
+    , applyMap <$> eChanges
 
 
     ]
@@ -728,8 +728,8 @@ list dMap todoItem
 ```haskell
   dMap <- foldDyn ($) Map.empty . mergeWith (.) $ [
       Map.insert <$> current dCount <@> eAdd
-    , applyMap <$> eChanges
     , flip (foldr Map.delete) <$> eRemoves
+    , applyMap <$> eChanges
     , (fmap . set tiComplete) <$> eMarkAllComplete
 
     ]
@@ -752,8 +752,8 @@ list dMap todoItem
 ```haskell
   dMap <- foldDyn ($) Map.empty . mergeWith (.) $ [
       Map.insert <$> current dCount <@> eAdd
-    , applyMap <$> eChanges
     , flip (foldr Map.delete) <$> eRemoves
+    , applyMap <$> eChanges
     , (fmap . set tiComplete) <$> eMarkAllComplete
 
     ]
@@ -776,8 +776,8 @@ list dMap todoItem
 ```haskell
   dMap <- foldDyn ($) Map.empty . mergeWith (.) $ [
       Map.insert <$> current dCount <@> eAdd
-    , applyMap <$> eChanges
     , flip (foldr Map.delete) <$> eRemoves
+    , applyMap <$> eChanges
     , (fmap . set tiComplete) <$> eMarkAllComplete
 
     ]
@@ -800,8 +800,8 @@ list dMap todoItem
 ```haskell
   dMap <- foldDyn ($) Map.empty . mergeWith (.) $ [
       Map.insert <$> current dCount <@> eAdd
-    , applyMap <$> eChanges
     , flip (foldr Map.delete) <$> eRemoves
+    , applyMap <$> eChanges
     , (fmap . set tiComplete) <$> eMarkAllComplete
     , Map.filter (not . view tiComplete) <$ eClearComplete
     ]

@@ -600,6 +600,8 @@ todoItem dTodoItem = do
       fmap Map.keys .
       switch . current . fmap mergeMap . fmap snd $
       dmEvents
+    dComplete = 
+      fmap (Map.elems . fmap (view tiComplete)) dModel
   ...
 ```
 
@@ -622,6 +624,8 @@ todoItem dTodoItem = do
       fmap Map.keys .
       switch . current . fmap mergeMap . fmap snd $
       dmEvents
+    dComplete = 
+      fmap (Map.elems . fmap (view tiComplete)) dModel
   ...
 ```
 
@@ -644,6 +648,8 @@ todoItem dTodoItem = do
       fmap Map.keys .
       switch . current . fmap mergeMap . fmap snd $
       dmEvents
+    dComplete = 
+      fmap (Map.elems . fmap (view tiComplete)) dModel
   ...
 ```
 
@@ -666,6 +672,8 @@ todoItem dTodoItem = do
       fmap Map.keys .
       switch . current . fmap mergeMap . fmap snd $
       dmEvents
+    dComplete = 
+      fmap (Map.elems . fmap (view tiComplete)) dModel
   ...
 ```
 
@@ -688,6 +696,8 @@ todoItem dTodoItem = do
       fmap Map.keys .
       switch . current . fmap mergeMap . fmap snd $
       dmEvents
+    dComplete = 
+      fmap (Map.elems . fmap (view tiComplete)) dModel
   ...
 ```
 
@@ -710,6 +720,8 @@ todoItem dTodoItem = do
       fmap Map.keys .
       switch . current . fmap mergeMap . fmap snd $
       dmEvents
+    dComplete = 
+      fmap (Map.elems . fmap (view tiComplete)) dModel
   ...
 ```
 
@@ -732,6 +744,8 @@ todoItem dTodoItem = do
       fmap Map.keys .
       switch . current . fmap mergeMap . fmap snd $
       dmEvents
+    dComplete = 
+      fmap (Map.elems . fmap (view tiComplete)) dModel
   ...
 ```
 
@@ -754,5 +768,152 @@ todoItem dTodoItem = do
       fmap (view mwRemoves) $
       eWriter
 
+    dComplete = 
+      fmap (Map.elems . fmap (view tiComplete)) dModel
   ...
 ```
+
+##
+
+```haskell
+type CanRemove t k m = 
+  ( Ord k
+  , MonadReader k m
+  , EventWriter t (Set k) m
+  )
+```
+
+##
+
+```haskell
+complete :: (HasModel t k TodoItem m, MonadWidget t m) =>
+
+
+  Dynamic t Bool ->
+  m ()
+complete                                 dComplete = do
+  initial <- sample . current $ dComplete
+
+  cb <- checkbox initial $
+    def & checkboxConfig_setValue .~
+                       updated dComplete
+
+
+
+
+  changeEvent $ set tiComplete <$> cb ^. checkbox_change
+
+
+
+
+  
+```
+
+##
+
+```haskell
+complete :: (CanRemove t k m        , MonadWidget t m) =>
+  Event t Bool ->
+  Event t () ->
+  Dynamic t Bool ->
+  m (Dynamic t Bool)
+complete eMarkAllComplete eClearComplete dComplete = do
+  initial <- sample . current $ dComplete
+
+  cb <- checkbox initial $
+    def & checkboxConfig_setValue .~ 
+            leftmost [ updated dComplete
+                     , eMarkAllComplete
+                     ]
+
+  let
+    dComplete =                    cb ^. checkbox_value
+
+  removeEvent $ 
+    ffilter id (current dComplete <@ eClearComplete)
+
+  pure dComplete
+```
+
+##
+
+```haskell
+todoItem                                 dTodoItem = do
+  dComplete <- holdUniqDyn $ fmap (view tiComplete) dTodoItem
+  dText     <- holdUniqDyn $ fmap (view tiText)     dTodoItem
+
+    
+    complete                                 dComplete
+  edit dText
+  remove
+  
+  
+```
+
+##
+
+```haskell
+todoItem eMarkAllComplete eClearComplete dTodoItem = do
+  dComplete <- holdUniqDyn $ fmap (view tiComplete) dTodoItem
+  dText     <- holdUniqDyn $ fmap (view tiText)     dTodoItem
+
+  dComplete <- 
+    complete eMarkAllComplete eClearComplete dComplete
+  edit dText
+  remove
+
+  pure dComplete
+```
+
+##
+
+```haskell
+  dModel <- 
+    foldDyn ($) initialMap . mergeWith (.) $ [
+        Map.insert <$> current dCount <@> eAdd
+      , flip (foldr Map.delete) <$> eRemoves
+      , applyMap <$> eChanges
+      , (fmap . set tiComplete) <$> eMarkAllComplete
+      , Map.filter (not . view tiComplete) <$ eClearComplete
+      ]
+  (_          , eWriter ) <-
+    el "ul" . runEventWriterT . listWithKey dModel $ \k dv ->
+      el "li" . flip runReaderT k $ 
+        todoItem                                 dv
+
+  let
+    dComplete = 
+      fmap (Map.elems . fmap (view tiComplete)) dModel
+    dAllComplete = fmap and dComplete
+    dAnyComplete = fmap or dComplete
+
+  eMarkAllComplete <- markAllComplete dAllComplete
+  eClearComplete   <- clearComplete   dAnyComplete
+```
+
+##
+
+```haskell
+  dModel <- 
+    foldDyn ($) initialMap . mergeWith (.) $ [
+        Map.insert <$> current dCount <@> eAdd
+      , flip (foldr Map.delete) <$> eRemoves
+
+
+
+      ]
+  (dmdComplete, eRemoves) <-
+    el "ul" . runEventWriterT . listWithKey dModel $ \k dv ->
+      el "li" . flip runReaderT k $
+        todoItem eMarkAllComplete eClearComplete dv
+
+  let
+    dComplete = 
+      joinDynThroughMap dmdComplete
+    dAllComplete = fmap and dComplete
+    dAnyComplete = fmap or dComplete
+
+  eMarkAllComplete <- markAllComplete dAllComplete
+  eClearComplete   <- clearComplete   dAnyComplete
+```
+

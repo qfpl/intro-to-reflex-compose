@@ -244,8 +244,6 @@ todoList tis = mdo
     dAllComplete = fmap and dComplete
     dAnyComplete = fmap or dComplete
 
-  el "hr" $ pure ()
-
   eMarkAllComplete <- el "div" $ markAllComplete dAllComplete
   eClearComplete   <- el "div" $ clearComplete   dAnyComplete
 
