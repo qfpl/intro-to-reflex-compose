@@ -17,15 +17,5 @@
     - show joinDynThroughMap at top level
     - thread the events through to complete
     - make use of them from there
-
-# Code and talk tasks
-
-- show that we can 
-  - load the initial state over a websocket
-  - send the changes over a websocket
-  - apply the changes once they have been confirmed via websocket, or display an error
-  - recieve changes made my other connected clients
-
-- show off the backend as well ?
    
 

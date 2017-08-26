@@ -117,7 +117,6 @@ instance Ord k => Monoid (ModelWriter k i) where
   mempty = ModelWriter mempty mempty
   mappend = (<>)
 
--- TODO add a helper to use a lens to transform the i in ModelWriter k i
 type HasModel t k i m = (Ord k, MonadReader k m,  EventWriter t (ModelWriter k i) m)
 
 changeEvent ::

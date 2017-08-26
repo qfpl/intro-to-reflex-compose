@@ -480,7 +480,6 @@ list dMap todoItem
 
 
 
-
   dmEvents <- el "ul" . list dMap $ \dv -> 
     el "li"  todoItem $ dv
 
@@ -497,7 +496,6 @@ list dMap todoItem
 ```haskell
   dMap <- foldDyn ($) Map.empty . mergeWith (.) $ [
       Map.insert <$> current dCount <@> eAdd
-
 
     ]
 
@@ -516,7 +514,6 @@ list dMap todoItem
 ```haskell
   dMap <- foldDyn ($) Map.empty . mergeWith (.) $ [
       Map.insert <$> current dCount <@> eAdd
-
 
     ]
 
@@ -536,7 +533,6 @@ list dMap todoItem
 ```haskell
   dMap <- foldDyn ($) Map.empty . mergeWith (.) $ [
       Map.insert <$> current dCount <@> eAdd
-
     , flip (foldr Map.delete) <$> eRemoves
     ]
 
@@ -652,8 +648,7 @@ list dMap todoItem
 
 
 
-
-
+  
 ```
 
 ##
@@ -671,14 +666,13 @@ list dMap todoItem
 
   let
     -- dComplete :: Dynamic t [Bool]
-    dComplete = fmap (Map.elems . fmap (view tiComplete)) dMap
+    dComplete = 
+      fmap (Map.elems . fmap (view tiComplete)) dMap
 
 
 
 
-
-
-
+  
 ```
 
 ##
@@ -696,39 +690,13 @@ list dMap todoItem
 
   let
     -- dComplete :: Dynamic t [Bool]
-    dComplete = fmap (Map.elems . fmap (view tiComplete)) dMap
-
-
-
-  el "hr" $ pure ()
-
-
-
-```
-
-##
-
-```haskell
-  dMap <- foldDyn ($) Map.empty . mergeWith (.) $ [
-      Map.insert <$> current dCount <@> eAdd
-    , applyMap <$> eChanges
-    , flip (foldr Map.delete) <$> eRemoves
-
-
-    ]
-    
-  ...
-
-  let
-    -- dComplete :: Dynamic t [Bool]
-    dComplete = fmap (Map.elems . fmap (view tiComplete)) dMap
+    dComplete = 
+      fmap (Map.elems . fmap (view tiComplete)) dMap
     dAllComplete = fmap and dComplete
 
 
-  el "hr" $ pure ()
 
-
-
+  
 ```
 
 ##
@@ -746,14 +714,13 @@ list dMap todoItem
 
   let
     -- dComplete :: Dynamic t [Bool]
-    dComplete = fmap (Map.elems . fmap (view tiComplete)) dMap
+    dComplete = 
+      fmap (Map.elems . fmap (view tiComplete)) dMap
     dAllComplete = fmap and dComplete
 
-
-  el "hr" $ pure ()
 
   eMarkAllComplete <- el "div" $ markAllComplete dAllComplete
-
+  
 ```
 
 ##
@@ -771,14 +738,13 @@ list dMap todoItem
 
   let
     -- dComplete :: Dynamic t [Bool]
-    dComplete = fmap (Map.elems . fmap (view tiComplete)) dMap
+    dComplete = 
+      fmap (Map.elems . fmap (view tiComplete)) dMap
     dAllComplete = fmap and dComplete
 
 
-  el "hr" $ pure ()
-
   eMarkAllComplete <- el "div" $ markAllComplete dAllComplete
-
+  
 ```
 
 ##
@@ -796,14 +762,13 @@ list dMap todoItem
 
   let
     -- dComplete :: Dynamic t [Bool]
-    dComplete = fmap (Map.elems . fmap (view tiComplete)) dMap
+    dComplete = 
+      fmap (Map.elems . fmap (view tiComplete)) dMap
     dAllComplete = fmap and dComplete
     dAnyComplete = fmap or dComplete
 
-  el "hr" $ pure ()
-
   eMarkAllComplete <- el "div" $ markAllComplete dAllComplete
-
+  
 ```
 
 ##
@@ -821,11 +786,10 @@ list dMap todoItem
 
   let
     -- dComplete :: Dynamic t [Bool]
-    dComplete = fmap (Map.elems . fmap (view tiComplete)) dMap
+    dComplete = 
+      fmap (Map.elems . fmap (view tiComplete)) dMap
     dAllComplete = fmap and dComplete
     dAnyComplete = fmap or dComplete
-
-  el "hr" $ pure ()
 
   eMarkAllComplete <- el "div" $ markAllComplete dAllComplete
   eClearComplete   <- el "div" $ clearComplete   dAnyComplete
@@ -846,11 +810,10 @@ list dMap todoItem
 
   let
     -- dComplete :: Dynamic t [Bool]
-    dComplete = fmap (Map.elems . fmap (view tiComplete)) dMap
+    dComplete = 
+      fmap (Map.elems . fmap (view tiComplete)) dMap
     dAllComplete = fmap and dComplete
     dAnyComplete = fmap or dComplete
-
-  el "hr" $ pure ()
 
   eMarkAllComplete <- el "div" $ markAllComplete dAllComplete
   eClearComplete   <- el "div" $ clearComplete   dAnyComplete
@@ -1001,6 +964,4 @@ todoList tis = mdo
 ##
 
 <div class="demo" id="examples-component-pass1-todo-list-5"></div>
-
-
 

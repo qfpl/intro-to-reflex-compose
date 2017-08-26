@@ -103,10 +103,8 @@ remove =
 
 ```haskell
 todoItem dTodoItem = do
-  dComplete <- holdUniqDyn $ 
-    fmap (view tiComplete) dTodoItem
-  dText     <- holdUniqDyn $ 
-    fmap (view tiText)     dTodoItem
+  dComplete <- holdUniqDyn $ fmap (view tiComplete) dTodoItem
+  dText     <- holdUniqDyn $ fmap (view tiText)     dTodoItem
 
   eComplete             <- complete dComplete
   (eText, eRemoveEmpty) <- edit dText
