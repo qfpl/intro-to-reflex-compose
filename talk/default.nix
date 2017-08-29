@@ -42,6 +42,7 @@ in
           $src/slides/components.md \
           $src/slides/collections.md \
           $src/slides/eventwriter.md \
+          $src/slides/other.md \
           $src/slides/conclusion.md \
           > slides.md
       pandoc -t revealjs --template=$src/template.revealjs --variable=codedir:$out --variable=transition:none --highlight-style=zenburn -s slides.md -o index.html

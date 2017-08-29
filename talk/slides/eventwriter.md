@@ -90,6 +90,21 @@ complete dComplete = do
 ```haskell
 complete :: (HasModel t k TodoItem m, MonadWidget t m) 
          => Dynamic t Bool 
+         -> m (Event t Bool)
+complete dComplete = do
+  initial <- sample . current $ dComplete
+  
+  cb <- checkbox initial $
+    def & checkboxConfig_setValue .~ updated dComplete
+
+  pure $                           cb ^. checkbox_change
+```
+
+##
+
+```haskell
+complete :: (HasModel t k TodoItem m, MonadWidget t m) 
+         => Dynamic t Bool 
          -> m ()
 complete dComplete = do
   initial <- sample . current $ dComplete
@@ -738,8 +753,8 @@ todoItem dTodoItem = do
 
   let
     eChanges =
-      fmap (view mwChanges) $ 
-      eWriter
+      fmap (view mwChanges) eWriter
+
     eRemoves =
       fmap Map.keys .
       switch . current . fmap mergeMap . fmap snd $
@@ -762,11 +777,11 @@ todoItem dTodoItem = do
 
   let
     eChanges = 
-      fmap (view mwChanges) $ 
-      eWriter
+      fmap (view mwChanges) eWriter
+
     eRemoves = 
-      fmap (view mwRemoves) $
-      eWriter
+      fmap (view mwRemoves) eWriter
+
 
     dComplete = 
       fmap (Map.elems . fmap (view tiComplete)) dModel
@@ -776,17 +791,37 @@ todoItem dTodoItem = do
 ##
 
 ```haskell
-type CanRemove t k m = 
+type HasModel  t  k i m = 
   ( Ord k
   , MonadReader k m
-  , EventWriter t (Set k) m
+  , EventWriter t (ModelWriter k i) m
   )
 ```
 
 ##
 
 ```haskell
-complete :: (HasModel t k TodoItem m, MonadWidget t m) =>
+type HasModel  t  k i m = 
+  ( Ord k
+  , MonadReader k m
+  , EventWriter t (Set         k  ) m
+  )
+```
+
+##
+
+```haskell
+type CanRemove t  k   m = 
+  ( Ord k
+  , MonadReader k m
+  , EventWriter t (Set         k  ) m
+  )
+```
+
+##
+
+```haskell
+complete :: (HasModel  t k TodoItem m, MonadWidget t m) =>
 
 
   Dynamic t Bool ->
@@ -812,7 +847,267 @@ complete                                 dComplete = do
 ##
 
 ```haskell
-complete :: (CanRemove t k m        , MonadWidget t m) =>
+complete :: (HasModel  t k TodoItem m, MonadWidget t m) =>
+  Event t Bool ->
+
+  Dynamic t Bool ->
+  m ()
+complete                                 dComplete = do
+  initial <- sample . current $ dComplete
+
+  cb <- checkbox initial $
+    def & checkboxConfig_setValue .~
+                       updated dComplete
+
+
+
+
+  changeEvent $ set tiComplete <$> cb ^. checkbox_change
+
+
+
+
+  
+```
+
+##
+
+```haskell
+complete :: (HasModel  t k TodoItem m, MonadWidget t m) =>
+  Event t Bool ->
+
+  Dynamic t Bool ->
+  m ()
+complete eMarkAllComplete                dComplete = do
+  initial <- sample . current $ dComplete
+
+  cb <- checkbox initial $
+    def & checkboxConfig_setValue .~
+                       updated dComplete
+
+
+
+
+  changeEvent $ set tiComplete <$> cb ^. checkbox_change
+
+
+
+
+  
+```
+
+##
+
+```haskell
+complete :: (HasModel  t k TodoItem m, MonadWidget t m) =>
+  Event t Bool ->
+
+  Dynamic t Bool ->
+  m ()
+complete eMarkAllComplete                dComplete = do
+  initial <- sample . current $ dComplete
+
+  cb <- checkbox initial $
+    def & checkboxConfig_setValue .~
+            leftmost [ updated dComplete
+
+                     ]
+
+
+  changeEvent $ set tiComplete <$> cb ^. checkbox_change
+
+
+
+
+  
+```
+
+##
+
+```haskell
+complete :: (HasModel  t k TodoItem m, MonadWidget t m) =>
+  Event t Bool ->
+
+  Dynamic t Bool ->
+  m ()
+complete eMarkAllComplete                dComplete = do
+  initial <- sample . current $ dComplete
+
+  cb <- checkbox initial $
+    def & checkboxConfig_setValue .~
+            leftmost [ updated dComplete
+                     , eMarkAllComplete
+                     ]
+
+
+  changeEvent $ set tiComplete <$> cb ^. checkbox_change
+
+
+
+
+  
+```
+
+##
+
+```haskell
+complete :: (HasModel  t k TodoItem m, MonadWidget t m) =>
+  Event t Bool ->
+  Event t () ->
+  Dynamic t Bool ->
+  m ()
+complete eMarkAllComplete                dComplete = do
+  initial <- sample . current $ dComplete
+
+  cb <- checkbox initial $
+    def & checkboxConfig_setValue .~
+            leftmost [ updated dComplete
+                     , eMarkAllComplete
+                     ]
+
+
+  changeEvent $ set tiComplete <$> cb ^. checkbox_change
+
+
+
+
+  
+```
+
+##
+
+```haskell
+complete :: (HasModel  t k TodoItem m, MonadWidget t m) =>
+  Event t Bool ->
+  Event t () ->
+  Dynamic t Bool ->
+  m ()
+complete eMarkAllComplete eClearComplete dComplete = do
+  initial <- sample . current $ dComplete
+
+  cb <- checkbox initial $
+    def & checkboxConfig_setValue .~
+            leftmost [ updated dComplete
+                     , eMarkAllComplete
+                     ]
+
+
+  changeEvent $ set tiComplete <$> cb ^. checkbox_change
+
+
+
+
+  
+```
+
+##
+
+```haskell
+complete :: (HasModel  t k TodoItem m, MonadWidget t m) =>
+  Event t Bool ->
+  Event t () ->
+  Dynamic t Bool ->
+  m ()
+complete eMarkAllComplete eClearComplete dComplete = do
+  initial <- sample . current $ dComplete
+
+  cb <- checkbox initial $
+    def & checkboxConfig_setValue .~
+            leftmost [ updated dComplete
+                     , eMarkAllComplete
+                     ]
+
+
+  changeEvent $ set tiComplete <$> cb ^. checkbox_change
+
+  removeEvent $ 
+    ffilter id (current dComplete <@ eClearComplete)
+
+  
+```
+
+##
+
+```haskell
+complete :: (HasModel  t k TodoItem m, MonadWidget t m) =>
+  Event t Bool ->
+  Event t () ->
+  Dynamic t Bool ->
+  m (Dynamic t Bool)
+complete eMarkAllComplete eClearComplete dComplete = do
+  initial <- sample . current $ dComplete
+
+  cb <- checkbox initial $
+    def & checkboxConfig_setValue .~
+            leftmost [ updated dComplete
+                     , eMarkAllComplete
+                     ]
+
+
+  changeEvent $ set tiComplete <$> cb ^. checkbox_change
+
+  removeEvent $ 
+    ffilter id (current dComplete <@ eClearComplete)
+
+  
+```
+
+##
+
+```haskell
+complete :: (HasModel  t k TodoItem m, MonadWidget t m) =>
+  Event t Bool ->
+  Event t () ->
+  Dynamic t Bool ->
+  m (Dynamic t Bool)
+complete eMarkAllComplete eClearComplete dComplete = do
+  initial <- sample . current $ dComplete
+
+  cb <- checkbox initial $
+    def & checkboxConfig_setValue .~
+            leftmost [ updated dComplete
+                     , eMarkAllComplete
+                     ]
+
+  let
+    dOut      =                    cb ^. checkbox_value
+
+  removeEvent $ 
+    ffilter id (current dComplete <@ eClearComplete)
+
+  
+```
+
+##
+
+```haskell
+complete :: (CanRemove t k          m, MonadWidget t m) =>
+  Event t Bool ->
+  Event t () ->
+  Dynamic t Bool ->
+  m (Dynamic t Bool)
+complete eMarkAllComplete eClearComplete dComplete = do
+  initial <- sample . current $ dComplete
+
+  cb <- checkbox initial $
+    def & checkboxConfig_setValue .~
+            leftmost [ updated dComplete
+                     , eMarkAllComplete
+                     ]
+
+  let
+    dOut      =                    cb ^. checkbox_value
+
+  removeEvent $ 
+    ffilter id (current dComplete <@ eClearComplete)
+
+  
+```
+
+##
+
+```haskell
+complete :: (CanRemove t k          m, MonadWidget t m) =>
   Event t Bool ->
   Event t () ->
   Dynamic t Bool ->
@@ -827,12 +1122,12 @@ complete eMarkAllComplete eClearComplete dComplete = do
                      ]
 
   let
-    dComplete =                    cb ^. checkbox_value
+    dOut      =                    cb ^. checkbox_value
 
   removeEvent $ 
     ffilter id (current dComplete <@ eClearComplete)
 
-  pure dComplete
+  pure dOut
 ```
 
 ##
@@ -853,16 +1148,91 @@ todoItem                                 dTodoItem = do
 ##
 
 ```haskell
+todoItem eMarkAllComplete                dTodoItem = do
+  dComplete <- holdUniqDyn $ fmap (view tiComplete) dTodoItem
+  dText     <- holdUniqDyn $ fmap (view tiText)     dTodoItem
+
+    
+    complete                                 dComplete
+  edit dText
+  remove
+  
+  
+```
+
+##
+
+```haskell
+todoItem eMarkAllComplete                dTodoItem = do
+  dComplete <- holdUniqDyn $ fmap (view tiComplete) dTodoItem
+  dText     <- holdUniqDyn $ fmap (view tiText)     dTodoItem
+
+    
+    complete eMarkAllComplete                dComplete
+  edit dText
+  remove
+  
+  
+```
+
+##
+
+```haskell
 todoItem eMarkAllComplete eClearComplete dTodoItem = do
   dComplete <- holdUniqDyn $ fmap (view tiComplete) dTodoItem
   dText     <- holdUniqDyn $ fmap (view tiText)     dTodoItem
 
-  dComplete <- 
+    
+    complete eMarkAllComplete                dComplete
+  edit dText
+  remove
+  
+  
+```
+
+##
+
+```haskell
+todoItem eMarkAllComplete eClearComplete dTodoItem = do
+  dComplete <- holdUniqDyn $ fmap (view tiComplete) dTodoItem
+  dText     <- holdUniqDyn $ fmap (view tiText)     dTodoItem
+
+    
+    complete eMarkAllComplete eClearComplete dComplete
+  edit dText
+  remove
+  
+  
+```
+
+##
+
+```haskell
+todoItem eMarkAllComplete eClearComplete dTodoItem = do
+  dComplete <- holdUniqDyn $ fmap (view tiComplete) dTodoItem
+  dText     <- holdUniqDyn $ fmap (view tiText)     dTodoItem
+
+  dOut <- 
+    complete eMarkAllComplete eClearComplete dComplete
+  edit dText
+  remove
+  
+  
+```
+
+##
+
+```haskell
+todoItem eMarkAllComplete eClearComplete dTodoItem = do
+  dComplete <- holdUniqDyn $ fmap (view tiComplete) dTodoItem
+  dText     <- holdUniqDyn $ fmap (view tiText)     dTodoItem
+
+  dOut <- 
     complete eMarkAllComplete eClearComplete dComplete
   edit dText
   remove
 
-  pure dComplete
+  pure dOut
 ```
 
 ##
@@ -882,13 +1252,143 @@ todoItem eMarkAllComplete eClearComplete dTodoItem = do
         todoItem                                 dv
 
   let
+    eRemoves = 
+      fmap (view mwRemoves) eWriter
     dComplete = 
       fmap (Map.elems . fmap (view tiComplete)) dModel
-    dAllComplete = fmap and dComplete
-    dAnyComplete = fmap or dComplete
 
-  eMarkAllComplete <- markAllComplete dAllComplete
-  eClearComplete   <- clearComplete   dAnyComplete
+  eMarkAllComplete <- markAllComplete (fmap and dComplete)
+  eClearComplete   <- clearComplete   (fmap or dComplete)
+```
+
+##
+
+```haskell
+  dModel <- 
+    foldDyn ($) initialMap . mergeWith (.) $ [
+        Map.insert <$> current dCount <@> eAdd
+      , flip (foldr Map.delete) <$> eRemoves
+      
+      
+      
+      ]
+  (_          , eWriter ) <-
+    el "ul" . runEventWriterT . listWithKey dModel $ \k dv ->
+      el "li" . flip runReaderT k $ 
+        todoItem                                 dv
+
+  let
+    eRemoves = 
+      fmap (view mwRemoves) eWriter
+    dComplete = 
+      fmap (Map.elems . fmap (view tiComplete)) dModel
+
+  eMarkAllComplete <- markAllComplete (fmap and dComplete)
+  eClearComplete   <- clearComplete   (fmap or dComplete)
+```
+
+##
+
+```haskell
+  dModel <- 
+    foldDyn ($) initialMap . mergeWith (.) $ [
+        Map.insert <$> current dCount <@> eAdd
+      , flip (foldr Map.delete) <$> eRemoves
+      
+      
+      
+      ]
+  (_          , eWriter ) <-
+    el "ul" . runEventWriterT . listWithKey dModel $ \k dv ->
+      el "li" . flip runReaderT k $ 
+        todoItem eMarkAllComplete eClearComplete dv
+
+  let
+    eRemoves = 
+      fmap (view mwRemoves) eWriter
+    dComplete = 
+      fmap (Map.elems . fmap (view tiComplete)) dModel
+
+  eMarkAllComplete <- markAllComplete (fmap and dComplete)
+  eClearComplete   <- clearComplete   (fmap or dComplete)
+```
+
+##
+
+```haskell
+  dModel <- 
+    foldDyn ($) initialMap . mergeWith (.) $ [
+        Map.insert <$> current dCount <@> eAdd
+      , flip (foldr Map.delete) <$> eRemoves
+      
+      
+      
+      ]
+  (dmdComplete, eWriter ) <-
+    el "ul" . runEventWriterT . listWithKey dModel $ \k dv ->
+      el "li" . flip runReaderT k $ 
+        todoItem eMarkAllComplete eClearComplete dv
+
+  let
+    eRemoves = 
+      fmap (view mwRemoves) eWriter
+    dComplete = 
+      fmap (Map.elems . fmap (view tiComplete)) dModel
+
+  eMarkAllComplete <- markAllComplete (fmap and dComplete)
+  eClearComplete   <- clearComplete   (fmap or dComplete)
+```
+
+##
+
+```haskell
+  dModel <- 
+    foldDyn ($) initialMap . mergeWith (.) $ [
+        Map.insert <$> current dCount <@> eAdd
+      , flip (foldr Map.delete) <$> eRemoves
+      
+      
+      
+      ]
+  (dmdComplete, eRemoves) <-
+    el "ul" . runEventWriterT . listWithKey dModel $ \k dv ->
+      el "li" . flip runReaderT k $ 
+        todoItem eMarkAllComplete eClearComplete dv
+
+  let
+    eRemoves = 
+      fmap (view mwRemoves) eWriter
+    dComplete = 
+      fmap (Map.elems . fmap (view tiComplete)) dModel
+
+  eMarkAllComplete <- markAllComplete (fmap and dComplete)
+  eClearComplete   <- clearComplete   (fmap or dComplete)
+```
+
+##
+
+```haskell
+  dModel <- 
+    foldDyn ($) initialMap . mergeWith (.) $ [
+        Map.insert <$> current dCount <@> eAdd
+      , flip (foldr Map.delete) <$> eRemoves
+      
+      
+      
+      ]
+  (dmdComplete, eRemoves) <-
+    el "ul" . runEventWriterT . listWithKey dModel $ \k dv ->
+      el "li" . flip runReaderT k $ 
+        todoItem eMarkAllComplete eClearComplete dv
+
+  let
+  
+  
+    dComplete = 
+      fmap (Map.elems . fmap (view tiComplete)) dModel
+
+  eMarkAllComplete <- markAllComplete (fmap and dComplete)
+  eClearComplete   <- clearComplete   (fmap or dComplete)
 ```
 
 ##
@@ -908,12 +1408,12 @@ todoItem eMarkAllComplete eClearComplete dTodoItem = do
         todoItem eMarkAllComplete eClearComplete dv
 
   let
+  
+  
     dComplete = 
       joinDynThroughMap dmdComplete
-    dAllComplete = fmap and dComplete
-    dAnyComplete = fmap or dComplete
 
-  eMarkAllComplete <- markAllComplete dAllComplete
-  eClearComplete   <- clearComplete   dAnyComplete
+  eMarkAllComplete <- markAllComplete (fmap and dComplete)
+  eClearComplete   <- clearComplete   (fmap or dComplete)
 ```
 
