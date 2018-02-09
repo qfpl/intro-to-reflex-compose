@@ -89,8 +89,8 @@ edit ::
 edit eic = do
   dItem <- workflow $ editingShow eic
   let
-    eChange = switch . current . fmap _editItem_eChange $ dItem
-    eRemove = switch . current . fmap _editItem_eRemove $ dItem
+    eChange = switchDyn . fmap _editItem_eChange $ dItem
+    eRemove = switchDyn . fmap _editItem_eRemove $ dItem
   pure $ EditItem eChange eRemove
 
 addItemWidget ::
@@ -221,8 +221,7 @@ todo2 tc = mdo
   let
     eRemoves =
       fmap Map.keys .
-      switch .
-      current .
+      switchDyn .
       fmap (mergeMap . fmap _todoItem_eRemove) $
       dmItems
     dComplete =
@@ -284,14 +283,12 @@ todo3 tc = mdo
   let
     eRemoves =
       fmap Map.keys .
-      switch .
-      current .
+      switchDyn .
       fmap (mergeMap . fmap _todoItem_eRemove) $
       dmItems
     eChanges =
       fmap Map.toList .
-      switch .
-      current .
+      switchDyn .
       fmap (mergeMap . fmap _todoItem_eChange) $
       dmItems
     dComplete =

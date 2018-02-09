@@ -361,7 +361,7 @@ edit ec           =
     wEdit = adjust wShow . editingEdit
   in do
     deRemove <- workflow $ wShow ec
-    pure $ switchPromptlyDyn deRemove
+    pure $ switchDyn deRemove
 ```
 
 ##

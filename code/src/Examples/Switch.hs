@@ -68,12 +68,12 @@ switchColour1 ::
   Event t Colour ->
   m (Event t Colour, Event t Colour)
 switchColour1 eSwitch1 eSwitch2 eInput = do
-  eOut1 <- switchPromptly eInput . leftmost $ [
+  eOut1 <- switchHold eInput . leftmost $ [
       eInput <$ eSwitch1
     , never  <$ eSwitch2
     ]
 
-  eOut2 <- switchPromptly never . leftmost $ [
+  eOut2 <- switchHold never . leftmost $ [
       never  <$ eSwitch1
     , eInput <$ eSwitch2
     ]
@@ -242,7 +242,7 @@ holdExample w = elClass "div" "widget-hold-wrapper" $ do
     ]
 
   let
-    eText  = switch . current $ deText
+    eText  = switchDyn deText
 
   dText <- holdDyn "" . leftmost $ [
                eText
@@ -282,7 +282,7 @@ workflowExample w = elClass "div" "widget-hold-wrapper" $ do
   deText <- workflow wf1
 
   let
-    eText  = switch . current $ deText
+    eText  = switchDyn deText
 
   dText <- holdDyn "" . leftmost $ [
                eText
@@ -321,7 +321,7 @@ workflowExample1 = elClass "div" "widget-hold-wrapper" $ mdo
     button "Switch"
 
   let
-    eText  = switch . current $ deText
+    eText  = switchDyn deText
 
   dText <- holdDyn "" . leftmost $ [
                eText
@@ -365,7 +365,7 @@ workflowExample2 = elClass "div" "widget-hold-wrapper" $ do
   deText <- workflow wf1
 
   let
-    eText = switch . current $ deText
+    eText = switchDyn deText
 
   dText <- holdDyn "" eText
   el "div"$

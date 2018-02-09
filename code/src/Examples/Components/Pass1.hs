@@ -119,7 +119,7 @@ edit dText = do
   deText <- workflow $ editRead dText
 
   let
-    eText = switch . current $ deText
+    eText = switchDyn deText
     eTextNonEmpty =       ffilter (not . Text.null) eText
     eTextEmpty    = () <$ ffilter        Text.null  eText
 
@@ -252,9 +252,9 @@ todoList1 tis = elClass "div" "todo" $ mdo
 
   let
     eChanges =
-      switch . current . fmap (mergeMap . fmap fst) $ dMap
+      switchDyn . fmap (mergeMap . fmap fst) $ dMap
     eRemoves =
-      fmap Map.keys . switch . current . fmap (mergeMap . fmap snd) $ dMap
+      fmap Map.keys . switchDyn . fmap (mergeMap . fmap snd) $ dMap
 
   pure ()
 
@@ -295,9 +295,9 @@ todoList2 tis = elClass "div" "todo" $ mdo
 
   let
     eChanges =
-      switch . current . fmap (mergeMap . fmap fst) $ dMap
+      switchDyn . fmap (mergeMap . fmap fst) $ dMap
     eRemoves =
-      fmap Map.keys . switch . current . fmap (mergeMap . fmap snd) $ dMap
+      fmap Map.keys . switchDyn . fmap (mergeMap . fmap snd) $ dMap
 
   pure ()
 
@@ -338,9 +338,9 @@ todoList3 tis = elClass "div" "todo" $ mdo
 
   let
     eChanges =
-      switch . current . fmap (mergeMap . fmap fst) $ dMap
+      switchDyn . fmap (mergeMap . fmap fst) $ dMap
     eRemoves =
-      fmap Map.keys . switch . current . fmap (mergeMap . fmap snd) $ dMap
+      fmap Map.keys . switchDyn . fmap (mergeMap . fmap snd) $ dMap
 
   pure ()
 
@@ -381,9 +381,9 @@ todoList4 tis = elClass "div" "todo" $ mdo
 
   let
     eChanges =
-      switch . current . fmap (mergeMap . fmap fst) $ dMap
+      switchDyn . fmap (mergeMap . fmap fst) $ dMap
     eRemoves =
-      fmap Map.keys . switch . current . fmap (mergeMap . fmap snd) $ dMap
+      fmap Map.keys . switchDyn . fmap (mergeMap . fmap snd) $ dMap
 
   pure ()
 

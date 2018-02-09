@@ -371,8 +371,6 @@ list dMap todoItem
 
 
 
-
-
       -- D t (Map Int (E (TI -> TI),  E t ()))
       dmEvents
 ```
@@ -383,8 +381,6 @@ list dMap todoItem
   let
     eRemoves =
     
-
-
 
 
 
@@ -402,8 +398,6 @@ list dMap todoItem
   let
     eRemoves =
     
-
-
 
 
 
@@ -424,8 +418,6 @@ list dMap todoItem
 
 
 
-      -- B t (E t (Map Int ()))
-      current .
       -- D t (E t (Map Int ()))
       fmap mergeMap .
       -- D t (Map Int (E t ()))
@@ -442,9 +434,7 @@ list dMap todoItem
     
 
       -- E t (Map Int ())
-      switch .
-      -- B t (E t (Map Int ()))
-      current .
+      switchDyn .
       -- D t (E t (Map Int ()))
       fmap mergeMap .
       -- D t (Map Int (E t ()))
@@ -461,9 +451,7 @@ list dMap todoItem
       -- E t [Int]
       fmap Map.keys .
       -- E t (Map Int ())
-      switch .
-      -- B t (E t (Map Int ()))
-      current .
+      switchDyn .
       -- D t (E t (Map Int ()))
       fmap mergeMap .
       -- D t (Map Int (E t ()))
@@ -524,7 +512,7 @@ list dMap todoItem
     -- Event t [Int]
     eRemoves =
       fmap Map.keys .
-      switch . current . fmap mergeMap . fmap snd $
+      switchDyn . fmap mergeMap . fmap snd $
       dmEvents
 ```
 
@@ -543,7 +531,7 @@ list dMap todoItem
     -- Event t [Int]
     eRemoves =
       fmap Map.keys .
-      switch . current . fmap mergeMap . fmap snd $
+      switchDyn . fmap mergeMap . fmap snd $
       dmEvents
 ```
 
@@ -571,7 +559,7 @@ list dMap todoItem
     -- Event t [Int]
     eRemoves =
       fmap Map.keys .
-      switch . current . fmap mergeMap . fmap snd $
+      switchDyn . fmap mergeMap . fmap snd $
       dmEvents
 ```
 
@@ -590,12 +578,12 @@ list dMap todoItem
   let
     -- Event t (Map Int (TI -> TI))
     eChanges =
-      switch . current . fmap mergeMap . fmap fst $
+      switchDyn . fmap mergeMap . fmap fst $
       dmEvents
     -- Event t [Int]
     eRemoves =
       fmap Map.keys .
-      switch . current . fmap mergeMap . fmap snd $
+      switchDyn . fmap mergeMap . fmap snd $
       dmEvents
 ```
 
@@ -614,12 +602,12 @@ list dMap todoItem
   let
     -- Event t (Map Int (TI -> TI))
     eChanges =
-      switch . current . fmap mergeMap . fmap fst $
+      switchDyn . fmap mergeMap . fmap fst $
       dmEvents
     -- Event t [Int]
     eRemoves =
       fmap Map.keys .
-      switch . current . fmap mergeMap . fmap snd $
+      switchDyn . fmap mergeMap . fmap snd $
       dmEvents
 ```
 

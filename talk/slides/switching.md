@@ -402,7 +402,7 @@ widgetHold :: (MonadAdjust t m, MonadHold t m)
     ]
 
   let
-    eText  = switch (current deText)
+    eText  = switchDyn deText
 ```
 
 ##
@@ -677,7 +677,7 @@ workflow :: (DomBuilder t m, MonadFix m, MonadHold t m)
   deText <- workflow wf1
 
   let
-    eText  = switch . current $ deText
+    eText  = switchDyn deText
 ```
 
 ##

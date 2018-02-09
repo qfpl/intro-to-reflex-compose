@@ -81,7 +81,7 @@ edit dText = do
   deText <- workflow $ editRead dText
 
   let
-    eText = switch . current $ deText
+    eText = switchDyn deText
     eTextNonEmpty =       ffilter (not . Text.null) eText
     eTextEmpty    = () <$ ffilter        Text.null  eText
 

@@ -368,7 +368,7 @@ edit dText = do
   deText <- workflow $ editRead dText
 
   let
-    eText = switch . current $ deText
+    eText = switchDyn deText
     eTextNonEmpty =       ffilter (not . Text.null) eText
     eTextEmpty    = () <$ ffilter        Text.null  eText
 
@@ -385,7 +385,7 @@ edit dText = do
   deText <- workflow $ editRead dText
 
   let
-    eText = switch . current $ deText
+    eText = switchDyn deText
     eTextNonEmpty =       ffilter (not . Text.null) eText
     eTextEmpty    = () <$ ffilter        Text.null  eText
 
@@ -402,7 +402,7 @@ edit dText = do
   deText <- workflow $ editRead dText
 
   let
-    eText = switch . current $ deText
+    eText = switchDyn deText
     eTextNonEmpty =       ffilter (not . Text.null) eText
     eTextEmpty    = () <$ ffilter        Text.null  eText
 
@@ -609,11 +609,11 @@ todoItem dTodoItem = do
 
   let
     eChanges =
-      switch . current . fmap mergeMap . fmap fst $
+      switchDyn . fmap mergeMap . fmap fst $
       dmEvents
     eRemoves =
       fmap Map.keys .
-      switch . current . fmap mergeMap . fmap snd $
+      switchDyn . fmap mergeMap . fmap snd $
       dmEvents
     dComplete = 
       fmap (Map.elems . fmap (view tiComplete)) dModel
@@ -633,11 +633,11 @@ todoItem dTodoItem = do
 
   let
     eChanges =
-      switch . current . fmap mergeMap . fmap fst $
+      switchDyn . fmap mergeMap . fmap fst $
       dmEvents
     eRemoves =
       fmap Map.keys .
-      switch . current . fmap mergeMap . fmap snd $
+      switchDyn . fmap mergeMap . fmap snd $
       dmEvents
     dComplete = 
       fmap (Map.elems . fmap (view tiComplete)) dModel
@@ -657,11 +657,11 @@ todoItem dTodoItem = do
 
   let
     eChanges =
-      switch . current . fmap mergeMap . fmap fst $
+      switchDyn . fmap mergeMap . fmap fst $
       dmEvents
     eRemoves =
       fmap Map.keys .
-      switch . current . fmap mergeMap . fmap snd $
+      switchDyn . fmap mergeMap . fmap snd $
       dmEvents
     dComplete = 
       fmap (Map.elems . fmap (view tiComplete)) dModel
@@ -681,11 +681,11 @@ todoItem dTodoItem = do
 
   let
     eChanges =
-      switch . current . fmap mergeMap . fmap fst $
+      switchDyn . fmap mergeMap . fmap fst $
       dmEvents
     eRemoves =
       fmap Map.keys .
-      switch . current . fmap mergeMap . fmap snd $
+      switchDyn . fmap mergeMap . fmap snd $
       dmEvents
     dComplete = 
       fmap (Map.elems . fmap (view tiComplete)) dModel
@@ -705,11 +705,11 @@ todoItem dTodoItem = do
 
   let
     eChanges =
-      switch . current . fmap mergeMap . fmap fst $
+      switchDyn . fmap mergeMap . fmap fst $
       dmEvents
     eRemoves =
       fmap Map.keys .
-      switch . current . fmap mergeMap . fmap snd $
+      switchDyn . fmap mergeMap . fmap snd $
       dmEvents
     dComplete = 
       fmap (Map.elems . fmap (view tiComplete)) dModel
@@ -729,11 +729,11 @@ todoItem dTodoItem = do
 
   let
     eChanges =
-      switch . current . fmap mergeMap . fmap fst $
+      switchDyn . fmap mergeMap . fmap fst $
       dmEvents
     eRemoves =
       fmap Map.keys .
-      switch . current . fmap mergeMap . fmap snd $
+      switchDyn . fmap mergeMap . fmap snd $
       dmEvents
     dComplete = 
       fmap (Map.elems . fmap (view tiComplete)) dModel
@@ -757,7 +757,7 @@ todoItem dTodoItem = do
 
     eRemoves =
       fmap Map.keys .
-      switch . current . fmap mergeMap . fmap snd $
+      switchDyn . fmap mergeMap . fmap snd $
       dmEvents
     dComplete = 
       fmap (Map.elems . fmap (view tiComplete)) dModel

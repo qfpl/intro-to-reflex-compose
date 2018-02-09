@@ -72,7 +72,7 @@ edit ::
   m (Event t Text)
 edit dValue = do
   deText <- workflow $ editingShow dValue
-  pure . switch . current $ deText
+  pure . switchDyn $ deText
 
 addItemWidget ::
   MonadWidget t m =>
@@ -179,8 +179,7 @@ getMapEvents ::
   Dynamic t (Map k b) ->
   Event t (Map k a)
 getMapEvents l =
-  switch .
-  current .
+  switchDyn .
   fmap (mergeMap . fmap (view l))
 
 applyMapEvents ::

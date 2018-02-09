@@ -30,19 +30,19 @@ Let's have a look at some higher order FRP
 ##
 
 ```haskell
-switch        :: 
-               
-                 Behavior t (Event t a)
-              ->             Event t a
+switch     :: 
+            
+              Behavior t (Event t a)
+           ->             Event t a
 ```
 
 ##
 
 ```haskell
-switchPrompty :: (Reflex t, MonadHold t m) 
-              =>             Event t a
-              -> Event    t (Event t a)
-              -> m          (Event t a)
+switchHold :: (Reflex t, MonadHold t m) 
+           =>             Event t a
+           -> Event    t (Event t a)
+           -> m          (Event t a)
 ```
 
 ##
@@ -509,13 +509,13 @@ switchColour :: (Reflex t, MonadHold t m)
              -> m (Event t Colour, Event t Colour)
 switchColour eSwitch1 eSwitch2 eInput = do
 
-  bOut1 <- hold           eInput . leftmost $ [
+  bOut1 <- hold       eInput . leftmost $ [
       eInput <$ eSwitch1
     , never  <$ eSwitch2
     ]
   let eOut1 = switch bOut1
 
-  bOut2 <- hold           never . leftmost $ [
+  bOut2 <- hold       never . leftmost $ [
       never  <$ eSwitch1
     , eInput <$ eSwitch2
     ]
@@ -534,13 +534,13 @@ switchColour :: (Reflex t, MonadHold t m)
              -> m (Event t Colour, Event t Colour)
 switchColour eSwitch1 eSwitch2 eInput = do
 
-  bOut1 <- switchPromptly eInput . leftmost $ [
+  bOut1 <- switchHold eInput . leftmost $ [
       eInput <$ eSwitch1
     , never  <$ eSwitch2
     ]
   let eOut1 = switch bOut1
 
-  bOut2 <- hold           never . leftmost $ [
+  bOut2 <- hold       never . leftmost $ [
       never  <$ eSwitch1
     , eInput <$ eSwitch2
     ]
@@ -559,13 +559,13 @@ switchColour :: (Reflex t, MonadHold t m)
              -> m (Event t Colour, Event t Colour)
 switchColour eSwitch1 eSwitch2 eInput = do
 
-  eOut1 <- switchPromptly eInput . leftmost $ [
+  eOut1 <- switchHold eInput . leftmost $ [
       eInput <$ eSwitch1
     , never  <$ eSwitch2
     ]
   let eOut1 = switch bOut1
 
-  bOut2 <- hold           never . leftmost $ [
+  bOut2 <- hold       never . leftmost $ [
       never  <$ eSwitch1
     , eInput <$ eSwitch2
     ]
@@ -584,13 +584,13 @@ switchColour :: (Reflex t, MonadHold t m)
              -> m (Event t Colour, Event t Colour)
 switchColour eSwitch1 eSwitch2 eInput = do
 
-  eOut1 <- switchPromptly eInput . leftmost $ [
+  eOut1 <- switchHold eInput . leftmost $ [
       eInput <$ eSwitch1
     , never  <$ eSwitch2
     ]
 
 
-  bOut2 <- hold           never . leftmost $ [
+  bOut2 <- hold       never . leftmost $ [
       never  <$ eSwitch1
     , eInput <$ eSwitch2
     ]
@@ -609,13 +609,13 @@ switchColour :: (Reflex t, MonadHold t m)
              -> m (Event t Colour, Event t Colour)
 switchColour eSwitch1 eSwitch2 eInput = do
 
-  eOut1 <- switchPromptly eInput . leftmost $ [
+  eOut1 <- switchHold eInput . leftmost $ [
       eInput <$ eSwitch1
     , never  <$ eSwitch2
     ]
 
 
-  bOut2 <- switchPromptly never . leftmost $ [
+  bOut2 <- switchHold never . leftmost $ [
       never  <$ eSwitch1
     , eInput <$ eSwitch2
     ]
@@ -634,13 +634,13 @@ switchColour :: (Reflex t, MonadHold t m)
              -> m (Event t Colour, Event t Colour)
 switchColour eSwitch1 eSwitch2 eInput = do
 
-  eOut1 <- switchPromptly eInput . leftmost $ [
+  eOut1 <- switchHold eInput . leftmost $ [
       eInput <$ eSwitch1
     , never  <$ eSwitch2
     ]
 
 
-  eOut2 <- switchPromptly never . leftmost $ [
+  eOut2 <- switchHold never . leftmost $ [
       never  <$ eSwitch1
     , eInput <$ eSwitch2
     ]
@@ -659,13 +659,13 @@ switchColour :: (Reflex t, MonadHold t m)
              -> m (Event t Colour, Event t Colour)
 switchColour eSwitch1 eSwitch2 eInput = do
 
-  eOut1 <- switchPromptly eInput . leftmost $ [
+  eOut1 <- switchHold eInput . leftmost $ [
       eInput <$ eSwitch1
     , never  <$ eSwitch2
     ]
 
 
-  eOut2 <- switchPromptly never . leftmost $ [
+  eOut2 <- switchHold never . leftmost $ [
       never  <$ eSwitch1
     , eInput <$ eSwitch2
     ]
